@@ -169,7 +169,7 @@ function initializeSampleEvents() {
         },
         {
             id: generateId(),
-            title: '小老鼠的起司時光',
+            title: '老鼠的起司時光',
             date: formatDate(today),
             time: '16:00',
             description: '品嚐美味的起司 🧀',
