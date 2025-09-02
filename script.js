@@ -810,6 +810,9 @@ function openEventModal(event = null) {
     // 重置表單
     eventForm.reset();
 
+    // 預設隱藏刪除按鈕
+    document.getElementById('deleteBtn').style.display = 'none';
+
     if (event) {
         // 編輯模式
         document.getElementById('modalTitle').textContent = '編輯行程';
@@ -833,7 +836,6 @@ function openEventModal(event = null) {
         document.getElementById('eventTime').value = '';
         document.getElementById('eventDescription').value = '';
         document.getElementById('eventType').value = 'personal';
-        document.getElementById('deleteBtn').style.display = 'none';
     }
 
     eventModal.style.display = 'block';
