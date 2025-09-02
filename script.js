@@ -98,9 +98,9 @@ function setupEventListeners() {
 
     // 手機版新增按鈕
     document.getElementById('mobileAddBtn').addEventListener('click', () => {
-        // 使用今天的日期作為預設日期
-        const today = new Date();
-        openEventModal(today);
+        // 設定今天為選中的日期，然後開啟新增模式
+        selectedDate = new Date();
+        openEventModal();
     });
 
             // 側邊欄控制
@@ -823,10 +823,16 @@ function openEventModal(event = null) {
     } else {
         // 新增模式
         document.getElementById('modalTitle').textContent = '新增行程';
+        document.getElementById('eventTitle').value = '';
         if (selectedDate) {
             document.getElementById('eventDate').value = formatDate(selectedDate);
+        } else {
+            document.getElementById('eventDate').value = '';
         }
         document.getElementById('eventEndDate').value = '';
+        document.getElementById('eventTime').value = '';
+        document.getElementById('eventDescription').value = '';
+        document.getElementById('eventType').value = 'personal';
         document.getElementById('deleteBtn').style.display = 'none';
     }
 
