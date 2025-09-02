@@ -79,8 +79,15 @@ function setupEventListeners() {
     // 表單提交
     eventForm.addEventListener('submit', handleFormSubmit);
 
-    // 側邊欄控制
+        // 側邊欄控制
     document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+
+    // 同步控制
+    document.getElementById('exportBtn').addEventListener('click', exportEvents);
+    document.getElementById('importBtn').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+    });
+    document.getElementById('importFile').addEventListener('change', importEvents);
 
     // 點擊彈窗外部關閉
     window.addEventListener('click', (e) => {
@@ -923,6 +930,88 @@ function isSameDate(date1, date2) {
 
 function saveEvents() {
     localStorage.setItem('calendarEvents', JSON.stringify(events));
+}
+
+// 匯出行程資料
+function exportEvents() {
+    try {
+        const dataToExport = {
+            events: events,
+            exportDate: new Date().toISOString(),
+            version: '1.0'
+        };
+
+        const dataStr = JSON.stringify(dataToExport, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        link.download = `貓咪小老鼠日曆_${dateStr}.json`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showNotification('行程資料已匯出！可以傳送給對方匯入', 'success');
+        console.log('📤 匯出行程資料:', dataToExport);
+
+    } catch (error) {
+        console.error('匯出失敗:', error);
+        showNotification('匯出失敗，請重試', 'error');
+    }
+}
+
+// 匯入行程資料
+function importEvents(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            // 驗證資料格式
+            if (!importedData.events || !Array.isArray(importedData.events)) {
+                throw new Error('無效的資料格式');
+            }
+
+            // 詢問是否要合併還是覆蓋
+            const shouldMerge = confirm(
+                `發現 ${importedData.events.length} 個行程\n\n` +
+                '點擊「確定」合併到現有行程\n' +
+                '點擊「取消」完全覆蓋現有行程'
+            );
+
+            if (shouldMerge) {
+                // 合併資料（避免重複）
+                const existingIds = new Set(events.map(e => e.id));
+                const newEvents = importedData.events.filter(e => !existingIds.has(e.id));
+                events = events.concat(newEvents);
+                showNotification(`成功匯入 ${newEvents.length} 個新行程！`, 'success');
+            } else {
+                // 完全覆蓋
+                events = importedData.events;
+                showNotification(`成功匯入 ${events.length} 個行程！`, 'success');
+            }
+
+            saveEvents();
+            renderCalendar();
+
+            console.log('📥 匯入行程資料:', importedData);
+
+        } catch (error) {
+            console.error('匯入失敗:', error);
+            showNotification('匯入失敗，請檢查檔案格式', 'error');
+        }
+    };
+
+    reader.readAsText(file);
+    // 清空文件輸入，允許重複匯入同一檔案
+    event.target.value = '';
 }
 
 // 添加動畫CSS

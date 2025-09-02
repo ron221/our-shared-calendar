@@ -485,6 +485,46 @@ body {
     flex-wrap: wrap;
 }
 
+/* 同步控制 */
+.sync-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.sync-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.export-btn {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+}
+
+.import-btn {
+    background: linear-gradient(45deg, #007bff, #6610f2);
+    color: white;
+}
+
+.sync-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
 .legend-item {
     display: flex;
     align-items: center;
@@ -838,6 +878,18 @@ body {
          display: grid;
          grid-template-columns: 1fr 1fr;
          gap: 8px;
+     }
+
+     .sync-controls {
+         padding: 10px;
+         margin-bottom: 15px;
+         gap: 10px;
+     }
+
+     .sync-btn {
+         padding: 8px 15px;
+         font-size: 0.8em;
+         gap: 5px;
      }
 
      .legend-item {
