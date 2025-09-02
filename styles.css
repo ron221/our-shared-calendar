@@ -315,6 +315,29 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* 拖拽相關樣式 */
+.day-event-item[draggable="true"] {
+    cursor: grab;
+}
+
+.day-event-item[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.day-event-item.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg) scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.calendar-day.drag-over {
+    background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-color: #667eea;
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
 .day-event-item.cat-event {
     border-left-color: #ff9a9e;
     background: linear-gradient(45deg, rgba(255, 154, 158, 0.1), rgba(254, 207, 239, 0.1));
@@ -586,6 +609,17 @@ body {
 .event-time {
     color: #666;
     font-size: 0.9em;
+}
+
+/* 觸控設備拖拽優化 */
+@media (hover: none) and (pointer: coarse) {
+    .day-event-item[draggable="true"] {
+        cursor: default;
+    }
+
+    .day-event-item[draggable="true"]:active {
+        cursor: default;
+    }
 }
 
 /* 響應式設計 */

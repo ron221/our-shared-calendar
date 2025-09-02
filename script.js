@@ -1,3 +1,6 @@
+// 除錯資訊
+console.log('🐱🐭 共享日曆 JavaScript 載入成功！');
+
 // 全域變數
 let currentDate = new Date();
 let currentUser = 'cat'; // 預設為貓咪模式
@@ -5,6 +8,11 @@ let currentView = 'month'; // 預設為月視圖
 let events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
 let selectedDate = null;
 let editingEventId = null;
+
+// 拖拽相關變數
+let draggedEvent = null;
+let draggedElement = null;
+let isDragging = false;
 
 // 月份名稱
 const monthNames = [
@@ -22,9 +30,16 @@ const eventSidebar = document.getElementById('eventSidebar');
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
-    initializeCalendar();
-    setupEventListeners();
-    renderCalendar();
+    console.log('🚀 DOM 載入完成，開始初始化...');
+
+    try {
+        initializeCalendar();
+        setupEventListeners();
+        renderCalendar();
+        console.log('✅ 日曆初始化完成！');
+    } catch (error) {
+        console.error('❌ 初始化錯誤:', error);
+    }
 });
 
 // 設置事件監聽器
@@ -135,6 +150,9 @@ function initializeCalendar() {
 // 切換用戶模式
 function switchUser(user) {
     currentUser = user;
+
+    // 除錯資訊
+    console.log('👤 切換用戶模式:', currentUser);
 
     // 更新按鈕狀態
     document.querySelectorAll('.user-btn').forEach(btn => {
@@ -276,11 +294,14 @@ function createDayElement(date, currentMonth) {
         showDayEvents(date);
     });
 
-    // 雙擊添加事件
+        // 雙擊添加事件
     dayElement.addEventListener('dblclick', () => {
         selectedDate = new Date(date);
         openEventModal();
     });
+
+    // 拖拽支援
+    setupDragAndDrop(dayElement, date);
 
     return dayElement;
 }
@@ -334,8 +355,16 @@ function createDayEventItem(event) {
     item.textContent = displayText;
     item.title = `${event.title}${event.description ? '\n' + event.description : ''}`;
 
+    // 如果是自己的行程或共同行程，允許拖拽
+    if (event.owner === currentUser || event.type === 'shared') {
+        item.draggable = true;
+        item.dataset.eventId = event.id;
+        setupEventDragHandlers(item, event);
+    }
+
     // 點擊事件項目直接編輯
     item.addEventListener('click', (e) => {
+        if (isDragging) return; // 拖拽時不觸發點擊
         e.stopPropagation();
         if (event.owner === currentUser || event.type === 'shared') {
             editEvent(event);
@@ -395,6 +424,14 @@ function getEventsForDate(date) {
 
 // 獲取事件CSS類別
 function getEventClass(event) {
+    // 除錯資訊
+    console.log('🎨 決定事件顏色:', {
+        title: event.title,
+        owner: event.owner,
+        type: event.type,
+        status: event.status
+    });
+
     if (event.type === 'shared') return 'shared-event';
     if (event.status === 'pending') return 'pending-event';
     if (event.owner === 'cat') return 'cat-event';
@@ -557,6 +594,14 @@ function handleFormSubmit(e) {
         status: document.getElementById('eventType').value === 'invitation' ? 'pending' : 'confirmed'
     };
 
+    // 除錯資訊
+    console.log('🐱🐭 新增/編輯行程:', {
+        title: eventData.title,
+        owner: eventData.owner,
+        currentUser: currentUser,
+        type: eventData.type
+    });
+
     if (editingEventId) {
         // 更新現有事件
         const eventIndex = events.findIndex(e => e.id === editingEventId);
@@ -659,6 +704,87 @@ function showNotification(message, type = 'info') {
             }
         }, 300);
     }, 3000);
+}
+
+// 設定日期方格的拖拽支援
+function setupDragAndDrop(dayElement, date) {
+    // 允許放置
+    dayElement.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (draggedEvent) {
+            dayElement.classList.add('drag-over');
+        }
+    });
+
+    dayElement.addEventListener('dragleave', (e) => {
+        dayElement.classList.remove('drag-over');
+    });
+
+    // 處理放置
+    dayElement.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dayElement.classList.remove('drag-over');
+
+        if (draggedEvent) {
+            const newDate = formatDate(date);
+            moveEventToDate(draggedEvent.id, newDate);
+            draggedEvent = null;
+            isDragging = false;
+        }
+    });
+}
+
+// 設定事件項目的拖拽處理
+function setupEventDragHandlers(item, event) {
+    item.addEventListener('dragstart', (e) => {
+        draggedEvent = event;
+        draggedElement = item;
+        isDragging = true;
+
+        // 設定拖拽效果
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', item.outerHTML);
+
+        // 添加拖拽樣式
+        setTimeout(() => {
+            item.classList.add('dragging');
+        }, 0);
+
+        console.log('🖱️ 開始拖拽行程:', event.title);
+    });
+
+    item.addEventListener('dragend', (e) => {
+        item.classList.remove('dragging');
+        // 清除所有拖拽樣式
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+
+        setTimeout(() => {
+            isDragging = false;
+        }, 100);
+    });
+}
+
+// 移動事件到新日期
+function moveEventToDate(eventId, newDate) {
+    const eventIndex = events.findIndex(e => e.id === eventId);
+    if (eventIndex !== -1) {
+        const oldDate = events[eventIndex].date;
+        events[eventIndex].date = newDate;
+
+        console.log('📅 移動行程:', {
+            title: events[eventIndex].title,
+            from: oldDate,
+            to: newDate
+        });
+
+        saveEvents();
+        renderCalendar();
+
+        // 顯示成功通知
+        showNotification(`行程「${events[eventIndex].title}」已移動到新日期`, 'success');
+    }
 }
 
 // 工具函數
