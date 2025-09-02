@@ -1,11 +1,22 @@
 // 除錯資訊
 console.log('🐱🐭 共享日曆 JavaScript 載入成功！');
 
+// Firebase 配置
+const firebaseConfig = {
+    apiKey: "AIzaSyB8gC9gE4Lc6Q2H8dJ5kF7mN9pR3sT6vW8x",
+    authDomain: "shared-calendar-demo.firebaseapp.com",
+    databaseURL: "https://shared-calendar-demo-default-rtdb.firebaseio.com",
+    projectId: "shared-calendar-demo",
+    storageBucket: "shared-calendar-demo.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abcdef1234567890"
+};
+
 // 全域變數
 let currentDate = new Date();
 let currentUser = 'cat'; // 預設為貓咪模式
 let currentView = 'month'; // 預設為月視圖
-let events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+let events = [];
 let selectedDate = null;
 let editingEventId = null;
 
@@ -13,6 +24,11 @@ let editingEventId = null;
 let draggedEvent = null;
 let draggedElement = null;
 let isDragging = false;
+
+// Firebase 相關變數
+let database = null;
+let isFirebaseEnabled = false;
+let syncStatus = 'connecting';
 
 // 月份名稱
 const monthNames = [
@@ -33,12 +49,13 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 DOM 載入完成，開始初始化...');
 
     try {
-        initializeCalendar();
+        initializeFirebase();
         setupEventListeners();
-        renderCalendar();
         console.log('✅ 日曆初始化完成！');
     } catch (error) {
         console.error('❌ 初始化錯誤:', error);
+        // 如果 Firebase 失敗，回退到本地模式
+        fallbackToLocalMode();
     }
 });
 
@@ -97,72 +114,184 @@ function setupEventListeners() {
     });
 }
 
-// 初始化日曆
-function initializeCalendar() {
-    // 如果是首次使用，添加一些示例事件
+// 初始化 Firebase
+function initializeFirebase() {
+    try {
+        // 嘗試初始化 Firebase（使用模擬配置，實際部署時需要真實配置）
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            setupFirebaseListeners();
+            updateSyncStatus('connected', '雲端已連線');
+            isFirebaseEnabled = true;
+            console.log('🔥 Firebase 初始化成功');
+        } else {
+            throw new Error('Firebase SDK 未載入');
+        }
+    } catch (error) {
+        console.warn('⚠️ Firebase 初始化失敗，使用本地模式:', error);
+        fallbackToLocalMode();
+    }
+}
+
+// 回退到本地模式
+function fallbackToLocalMode() {
+    isFirebaseEnabled = false;
+    updateSyncStatus('disconnected', '離線模式');
+
+    // 從本地儲存載入資料
+    events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+
+    // 如果沒有資料，初始化示例資料
     if (events.length === 0) {
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        initializeSampleEvents();
+    }
 
-        const nextWeek = new Date(today);
-        nextWeek.setDate(nextWeek.getDate() + 7);
+    renderCalendar();
+    console.log('📱 使用本地模式');
+}
 
-        events = [
-            {
-                id: generateId(),
-                title: '貓咪的午睡時間',
-                date: formatDate(today),
-                time: '14:00',
-                description: '在陽光下舒服地睡覺 😴',
-                type: 'personal',
-                owner: 'cat',
-                status: 'confirmed'
-            },
-            {
-                id: generateId(),
-                title: '小老鼠的起司時光',
-                date: formatDate(today),
-                time: '16:00',
-                description: '品嚐美味的起司 🧀',
-                type: 'personal',
-                owner: 'mouse',
-                status: 'confirmed'
-            },
-            {
-                id: generateId(),
-                title: '一起看電影',
-                date: formatDate(tomorrow),
-                time: '20:00',
-                description: '看一部浪漫的電影 🎬',
-                type: 'shared',
-                owner: 'cat',
-                status: 'confirmed'
-            },
-            {
-                id: generateId(),
-                title: '公園散步',
-                date: formatDate(nextWeek),
-                time: '10:00',
-                description: '在公園裡享受美好時光 🌳',
-                type: 'invitation',
-                owner: 'mouse',
-                status: 'pending'
-            },
-            {
-                id: generateId(),
-                title: '韓國旅行',
-                date: formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 25)),
-                endDate: formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 30)),
-                time: '',
-                description: '一起去韓國玩！首爾 + 釜山 🇰🇷',
-                type: 'shared',
-                owner: 'cat',
-                status: 'confirmed',
-                isMultiDay: true
-            }
-        ];
-        saveEvents();
+// 初始化示例事件
+function initializeSampleEvents() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    events = [
+        {
+            id: generateId(),
+            title: '貓咪的午睡時間',
+            date: formatDate(today),
+            time: '14:00',
+            description: '在陽光下舒服地睡覺 😴',
+            type: 'personal',
+            owner: 'cat',
+            status: 'confirmed'
+        },
+        {
+            id: generateId(),
+            title: '小老鼠的起司時光',
+            date: formatDate(today),
+            time: '16:00',
+            description: '品嚐美味的起司 🧀',
+            type: 'personal',
+            owner: 'mouse',
+            status: 'confirmed'
+        },
+        {
+            id: generateId(),
+            title: '一起看電影',
+            date: formatDate(tomorrow),
+            time: '20:00',
+            description: '看一部浪漫的電影 🎬',
+            type: 'shared',
+            owner: 'cat',
+            status: 'confirmed'
+        },
+        {
+            id: generateId(),
+            title: '公園散步',
+            date: formatDate(nextWeek),
+            time: '10:00',
+            description: '在公園裡享受美好時光 🌳',
+            type: 'invitation',
+            owner: 'mouse',
+            status: 'pending'
+        },
+        {
+            id: generateId(),
+            title: '韓國旅行',
+            date: formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 25)),
+            endDate: formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 30)),
+            time: '',
+            description: '一起去韓國玩！首爾 + 釜山 🇰🇷',
+            type: 'shared',
+            owner: 'cat',
+            status: 'confirmed',
+            isMultiDay: true
+        }
+    ];
+    saveEvents();
+}
+
+// 設置 Firebase 監聽器
+function setupFirebaseListeners() {
+    if (!database) return;
+
+    const eventsRef = database.ref('events');
+
+    // 監聽資料變化
+    eventsRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && Array.isArray(data)) {
+            events = data;
+            renderCalendar();
+            console.log('🔄 從雲端同步資料:', events.length, '個行程');
+        } else if (events.length === 0) {
+            // 如果雲端沒有資料且本地也沒有，初始化示例資料
+            initializeSampleEvents();
+            syncToFirebase();
+        }
+    });
+
+    // 監聽連線狀態
+    database.ref('.info/connected').on('value', (snapshot) => {
+        if (snapshot.val() === true) {
+            updateSyncStatus('connected', '雲端已連線');
+        } else {
+            updateSyncStatus('disconnected', '連線中斷');
+        }
+    });
+}
+
+// 同步到 Firebase
+function syncToFirebase() {
+    if (!database || !isFirebaseEnabled) return;
+
+    updateSyncStatus('syncing', '同步中...');
+
+    database.ref('events').set(events)
+        .then(() => {
+            updateSyncStatus('connected', '雲端已連線');
+            console.log('☁️ 資料已同步到雲端');
+        })
+        .catch((error) => {
+            console.error('❌ 同步失敗:', error);
+            updateSyncStatus('disconnected', '同步失敗');
+        });
+}
+
+// 更新同步狀態
+function updateSyncStatus(status, text) {
+    syncStatus = status;
+    const statusElement = document.getElementById('syncStatus');
+    const textElement = document.getElementById('syncText');
+    const iconElement = document.getElementById('syncIcon');
+
+    if (statusElement && textElement && iconElement) {
+        // 移除所有狀態類別
+        statusElement.classList.remove('connected', 'disconnected', 'syncing');
+        statusElement.classList.add(status);
+
+        textElement.textContent = text;
+
+        // 更新圖標
+        switch (status) {
+            case 'connected':
+                iconElement.className = 'fas fa-cloud-upload-alt';
+                break;
+            case 'disconnected':
+                iconElement.className = 'fas fa-cloud-slash';
+                break;
+            case 'syncing':
+                iconElement.className = 'fas fa-sync-alt';
+                break;
+            default:
+                iconElement.className = 'fas fa-wifi';
+        }
     }
 }
 
@@ -929,7 +1058,13 @@ function isSameDate(date1, date2) {
 }
 
 function saveEvents() {
+    // 本地備份
     localStorage.setItem('calendarEvents', JSON.stringify(events));
+
+    // 雲端同步
+    if (isFirebaseEnabled) {
+        syncToFirebase();
+    }
 }
 
 // 匯出行程資料

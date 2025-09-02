@@ -489,12 +489,49 @@ body {
 .sync-controls {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 15px;
     background: rgba(255, 255, 255, 0.9);
     padding: 15px;
     border-radius: 15px;
     margin-bottom: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+}
+
+.sync-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.sync-status.connected {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+}
+
+.sync-status.disconnected {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    color: white;
+}
+
+.sync-status.syncing {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    color: white;
+}
+
+.sync-status.syncing #syncIcon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .sync-btn {
@@ -880,10 +917,16 @@ body {
          gap: 8px;
      }
 
-     .sync-controls {
+          .sync-controls {
          padding: 10px;
          margin-bottom: 15px;
          gap: 10px;
+         flex-direction: column;
+     }
+
+     .sync-status {
+         padding: 6px 12px;
+         font-size: 0.8em;
      }
 
      .sync-btn {
