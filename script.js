@@ -297,6 +297,11 @@ function createDayElement(date, currentMonth) {
         // 雙擊添加事件
     dayElement.addEventListener('dblclick', () => {
         selectedDate = new Date(date);
+        console.log('📅 雙擊日期:', {
+            clickedDate: date.toDateString(),
+            selectedDate: selectedDate.toDateString(),
+            formattedDate: formatDate(selectedDate)
+        });
         openEventModal();
     });
 
@@ -793,7 +798,11 @@ function generateId() {
 }
 
 function formatDate(date) {
-    return date.toISOString().split('T')[0];
+    // 避免時區問題，使用本地日期
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 function isSameDate(date1, date2) {
