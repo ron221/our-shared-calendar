@@ -243,7 +243,7 @@ body {
         margin-right: 12px;
         margin-bottom: 0;
         padding: 8px;
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: #667eea;
         color: white;
         border-radius: 8px;
         flex-shrink: 0;
@@ -252,6 +252,7 @@ body {
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
     }
 
     .calendar-wrapper.week-view .day-events {
@@ -267,13 +268,46 @@ body {
         padding: 8px 12px;
         margin-bottom: 0;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         border-left-width: 4px;
+        color: #333;
+        font-weight: 600;
     }
 
     .calendar-wrapper.week-view .calendar-day.today .day-number {
-        background: linear-gradient(45deg, #ff6b6b, #ffa500);
+        background: #ff6b6b;
+        box-shadow: 0 2px 12px rgba(255, 107, 107, 0.4);
+        color: white;
+        font-weight: 900;
+    }
+
+    /* 週視圖中不同類型行程的顏色優化 */
+    .calendar-wrapper.week-view .day-event-item.cat-event {
+        border-left-color: #ff6b6b;
+        background: linear-gradient(90deg, rgba(255, 107, 107, 0.08) 0%, white 20%);
+    }
+
+    .calendar-wrapper.week-view .day-event-item.mouse-event {
+        border-left-color: #4ecdc4;
+        background: linear-gradient(90deg, rgba(78, 205, 196, 0.08) 0%, white 20%);
+    }
+
+    .calendar-wrapper.week-view .day-event-item.shared-event {
+        border-left-color: #ffa500;
+        background: linear-gradient(90deg, rgba(255, 165, 0, 0.08) 0%, white 20%);
+    }
+
+    .calendar-wrapper.week-view .day-event-item.pending-event {
+        border-left-color: #9b59b6;
+        background: linear-gradient(90deg, rgba(155, 89, 182, 0.08) 0%, white 20%);
+        animation: pulse 2s infinite;
+    }
+
+    .calendar-wrapper.week-view .day-event-item.multi-day-event {
+        border-left-color: #f39c12;
+        background: linear-gradient(90deg, rgba(243, 156, 18, 0.08) 0%, white 20%);
+        font-weight: 700;
     }
 }
 
@@ -287,11 +321,20 @@ body {
         min-width: 50px;
         margin-right: 10px;
         padding: 6px;
+        font-weight: 900;
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+    }
+
+    .calendar-wrapper.week-view .calendar-day.today .day-number {
+        box-shadow: 0 3px 15px rgba(255, 107, 107, 0.5);
+        font-weight: 900;
     }
 
     .calendar-wrapper.week-view .day-event-item {
         font-size: 0.8em;
         padding: 6px 10px;
+        font-weight: 700;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     }
 }
 
