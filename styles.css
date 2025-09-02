@@ -213,6 +213,45 @@ body {
     font-size: 1.2em;
 }
 
+/* 週視圖手機優化 */
+@media (max-width: 768px) {
+    .calendar-wrapper.week-view .calendar-day {
+        min-height: 120px;
+        max-height: 120px;
+        padding: 4px;
+    }
+
+    .calendar-wrapper.week-view .day-event-item {
+        font-size: 0.7em;
+        padding: 3px 5px;
+        margin-bottom: 2px;
+    }
+
+    .calendar-wrapper.week-view .day-number {
+        font-size: 0.9em;
+        margin-bottom: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-wrapper.week-view .calendar-day {
+        min-height: 100px;
+        max-height: 100px;
+        padding: 3px;
+    }
+
+    .calendar-wrapper.week-view .day-event-item {
+        font-size: 0.6em;
+        padding: 2px 4px;
+        margin-bottom: 1px;
+    }
+
+    .calendar-wrapper.week-view .day-number {
+        font-size: 0.8em;
+        margin-bottom: 3px;
+    }
+}
+
 .calendar-day {
     display: flex;
     flex-direction: column;
@@ -646,68 +685,239 @@ body {
 /* 響應式設計 */
 @media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 8px;
+    }
+
+    .header {
+        padding: 15px;
+        margin-bottom: 15px;
     }
 
     .header h1 {
-        font-size: 1.8em;
+        font-size: 1.4em;
+        margin-bottom: 15px;
     }
 
     .user-selector {
-        flex-direction: column;
-        gap: 10px;
+        gap: 8px;
     }
 
-    .calendar-controls {
-        padding: 10px 15px;
-    }
-
-    #currentPeriod {
-        font-size: 1.4em;
-    }
-
-    .view-selector {
-        padding: 10px;
-    }
-
-    .view-btn {
-        padding: 8px 15px;
-        font-size: 0.85em;
-    }
-
-    .legend {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .calendar-day {
-        min-height: 100px;
-        max-height: 100px;
-        padding: 4px;
-    }
-
-    .day-event-item {
-        font-size: 0.7em;
-        padding: 2px 4px;
-        margin-bottom: 2px;
-    }
-
-    .day-number {
+    .user-btn {
+        padding: 8px 16px;
         font-size: 0.9em;
     }
 
+    .calendar-controls {
+        padding: 8px 15px;
+        margin-bottom: 15px;
+    }
+
+    #currentPeriod {
+        font-size: 1.1em;
+    }
+
+    .nav-btn {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+
+    .view-selector {
+        padding: 8px;
+        margin-bottom: 15px;
+    }
+
+    .view-btn {
+        padding: 6px 12px;
+        font-size: 0.8em;
+        gap: 4px;
+    }
+
+    .calendar-wrapper {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .weekdays {
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .weekday {
+        padding: 8px 4px;
+        font-size: 0.8em;
+    }
+
+    .calendar-grid {
+        gap: 5px;
+    }
+
+    .calendar-day {
+        min-height: 85px;
+        max-height: 85px;
+        padding: 3px;
+    }
+
+    .calendar-day.today .day-number {
+        font-size: 0.8em;
+    }
+
+    .day-number {
+        font-size: 0.75em;
+        margin-bottom: 3px;
+    }
+
+    .day-events {
+        margin-top: 1px;
+    }
+
+    .day-event-item {
+        font-size: 0.6em;
+        padding: 1px 3px;
+        margin-bottom: 1px;
+        line-height: 1.1;
+        border-left-width: 2px;
+    }
+
+    .day-event-item.multi-day-event {
+        border-left-width: 3px;
+        font-size: 0.65em;
+    }
+
+    .day-event-item.multi-day-event::before {
+        width: 4px;
+        height: 4px;
+        left: -2px;
+    }
+
+         .legend {
+         padding: 10px;
+         margin-bottom: 15px;
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 8px;
+     }
+
+     .legend-item {
+         font-size: 0.75em;
+         gap: 4px;
+         justify-content: flex-start;
+     }
+
+     .legend-color {
+         width: 10px;
+         height: 10px;
+     }
+
     .modal-content {
         width: 95%;
-        margin: 10% auto;
+        margin: 5% auto;
+    }
+
+    .modal-header {
+        padding: 15px;
+    }
+
+    .modal-header h3 {
+        font-size: 1.2em;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 8px;
+        font-size: 0.9em;
     }
 
     .form-actions {
         flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9em;
     }
 
     .sidebar {
         width: 100%;
         right: -100%;
+    }
+
+    .sidebar-header {
+        padding: 15px;
+    }
+
+    .sidebar-header h3 {
+        font-size: 1.1em;
+    }
+
+    .event-list {
+        padding: 15px;
+    }
+
+    .event-item {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .event-title {
+        font-size: 0.9em;
+    }
+
+    .event-time {
+        font-size: 0.8em;
+    }
+}
+
+/* 更小螢幕的進一步優化 */
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+
+    .header {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .header h1 {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    .calendar-day {
+        min-height: 75px;
+        max-height: 75px;
+        padding: 2px;
+    }
+
+    .day-number {
+        font-size: 0.7em;
+        margin-bottom: 2px;
+    }
+
+    .day-event-item {
+        font-size: 0.55em;
+        padding: 1px 2px;
+        margin-bottom: 1px;
+    }
+
+    .weekday {
+        padding: 6px 2px;
+        font-size: 0.7em;
     }
 }
 

@@ -328,10 +328,21 @@ function createDayEventsContainer(date) {
     const container = document.createElement('div');
     container.className = 'day-events';
 
-    const dayEvents = getEventsForDate(date);
+        const dayEvents = getEventsForDate(date);
 
-    // 限制顯示的事件數量，避免溢出
-    const maxEvents = 3;
+    // 根據螢幕大小和視圖調整顯示的事件數量
+    let maxEvents;
+    const isMobile = window.innerWidth <= 768;
+    const isSmallMobile = window.innerWidth <= 480;
+
+    if (currentView === 'week') {
+        // 週視圖可以顯示更多
+        maxEvents = isMobile ? (isSmallMobile ? 4 : 5) : 6;
+    } else {
+        // 月視圖限制較少
+        maxEvents = isMobile ? (isSmallMobile ? 3 : 4) : 3;
+    }
+
     const eventsToShow = dayEvents.slice(0, maxEvents);
 
     eventsToShow.forEach(event => {
@@ -366,21 +377,41 @@ function createDayEventItem(event, currentDate = null) {
         item.classList.add('multi-day-event');
     }
 
-    // 創建時間和標題的顯示
+        // 創建時間和標題的顯示
     let displayText = '';
-    if (event.time) {
-        displayText = `${event.time} ${event.title}`;
-    } else {
-        displayText = event.title;
-    }
 
-    // 多日行程顯示日期範圍
+    // 檢查是否為手機螢幕
+    const isMobile = window.innerWidth <= 768;
+
     if (event.isMultiDay || event.endDate) {
+        // 多日行程的顯示
         const startDate = new Date(event.date);
         const endDate = new Date(event.endDate);
-        const start = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
-        const end = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
-        displayText = `📅 ${displayText} (${start}-${end})`;
+
+        if (isMobile) {
+            // 手機版：簡化顯示
+            const start = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
+            const end = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
+            displayText = `📅${event.title} (${start}-${end})`;
+        } else {
+            // 桌面版：完整顯示
+            const start = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
+            const end = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
+            displayText = `📅 ${event.title} (${start}-${end})`;
+        }
+    } else {
+        // 單日行程的顯示
+        if (event.time) {
+            if (isMobile) {
+                // 手機版：縮短時間格式
+                const shortTime = event.time.substring(0, 5); // 去掉秒數
+                displayText = `${shortTime} ${event.title}`;
+            } else {
+                displayText = `${event.time} ${event.title}`;
+            }
+        } else {
+            displayText = event.title;
+        }
     }
 
     item.textContent = displayText;
