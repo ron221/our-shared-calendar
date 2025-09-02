@@ -1,15 +1,15 @@
 // 除錯資訊
 console.log('🐱🐭 共享日曆 JavaScript 載入成功！');
 
-// Firebase 配置
+// Firebase 配置 - 真實配置
 const firebaseConfig = {
-    apiKey: "AIzaSyB8gC9gE4Lc6Q2H8dJ5kF7mN9pR3sT6vW8x",
-    authDomain: "shared-calendar-demo.firebaseapp.com",
-    databaseURL: "https://shared-calendar-demo-default-rtdb.firebaseio.com",
-    projectId: "shared-calendar-demo",
-    storageBucket: "shared-calendar-demo.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef1234567890"
+    apiKey: "AIzaSyBxLquFyao1ujsj_7utW-0r_A1ZgsenaI4",
+    authDomain: "our-shared-calendar-f16ce.firebaseapp.com",
+    databaseURL: "https://our-shared-calendar-f16ce-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "our-shared-calendar-f16ce",
+    storageBucket: "our-shared-calendar-f16ce.firebasestorage.app",
+    messagingSenderId: "729942793891",
+    appId: "1:729942793891:web:88366bff70b150682fe916"
 };
 
 // 全域變數
