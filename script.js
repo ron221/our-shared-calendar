@@ -141,6 +141,18 @@ function initializeCalendar() {
                 type: 'invitation',
                 owner: 'mouse',
                 status: 'pending'
+            },
+            {
+                id: generateId(),
+                title: '韓國旅行',
+                date: formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 25)),
+                endDate: formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 30)),
+                time: '',
+                description: '一起去韓國玩！首爾 + 釜山 🇰🇷',
+                type: 'shared',
+                owner: 'cat',
+                status: 'confirmed',
+                isMultiDay: true
             }
         ];
         saveEvents();
@@ -345,9 +357,14 @@ function createDayEventsContainer(date) {
 }
 
 // 創建日期中的單個事件項目
-function createDayEventItem(event) {
+function createDayEventItem(event, currentDate = null) {
     const item = document.createElement('div');
     item.className = `day-event-item ${getEventClass(event)}`;
+
+    // 如果是多日行程，添加特殊樣式
+    if (event.isMultiDay || event.endDate) {
+        item.classList.add('multi-day-event');
+    }
 
     // 創建時間和標題的顯示
     let displayText = '';
@@ -357,11 +374,22 @@ function createDayEventItem(event) {
         displayText = event.title;
     }
 
-    item.textContent = displayText;
-    item.title = `${event.title}${event.description ? '\n' + event.description : ''}`;
+    // 多日行程顯示日期範圍
+    if (event.isMultiDay || event.endDate) {
+        const startDate = new Date(event.date);
+        const endDate = new Date(event.endDate);
+        const start = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
+        const end = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
+        displayText = `📅 ${displayText} (${start}-${end})`;
+    }
 
-    // 如果是自己的行程或共同行程，允許拖拽
-    if (event.owner === currentUser || event.type === 'shared') {
+    item.textContent = displayText;
+    item.title = `${event.title}${event.description ? '\n' + event.description : ''}${
+        event.isMultiDay || event.endDate ? '\n多日行程: ' + event.date + ' ~ ' + event.endDate : ''
+    }`;
+
+    // 如果是自己的行程或共同行程，允許拖拽（但多日行程暫時不允許拖拽）
+    if ((event.owner === currentUser || event.type === 'shared') && !event.isMultiDay && !event.endDate) {
         item.draggable = true;
         item.dataset.eventId = event.id;
         setupEventDragHandlers(item, event);
@@ -424,7 +452,19 @@ function showEventDetails(event) {
 // 獲取特定日期的事件
 function getEventsForDate(date) {
     const dateString = formatDate(date);
-    return events.filter(event => event.date === dateString);
+    return events.filter(event => {
+        // 單日行程：直接比較日期
+        if (!event.endDate || event.date === event.endDate) {
+            return event.date === dateString;
+        }
+
+        // 多日行程：檢查日期是否在範圍內
+        const startDate = new Date(event.date);
+        const endDate = new Date(event.endDate);
+        const checkDate = new Date(dateString);
+
+        return checkDate >= startDate && checkDate <= endDate;
+    });
 }
 
 // 獲取事件CSS類別
@@ -557,6 +597,7 @@ function openEventModal(event = null) {
         document.getElementById('modalTitle').textContent = '編輯行程';
         document.getElementById('eventTitle').value = event.title;
         document.getElementById('eventDate').value = event.date;
+        document.getElementById('eventEndDate').value = event.endDate || '';
         document.getElementById('eventTime').value = event.time || '';
         document.getElementById('eventDescription').value = event.description || '';
         document.getElementById('eventType').value = event.type;
@@ -567,6 +608,7 @@ function openEventModal(event = null) {
         if (selectedDate) {
             document.getElementById('eventDate').value = formatDate(selectedDate);
         }
+        document.getElementById('eventEndDate').value = '';
         document.getElementById('deleteBtn').style.display = 'none';
     }
 
@@ -589,14 +631,25 @@ function handleFormSubmit(e) {
     e.preventDefault();
 
     const formData = new FormData(eventForm);
+    const startDate = document.getElementById('eventDate').value;
+    const endDate = document.getElementById('eventEndDate').value;
+
+    // 驗證日期
+    if (endDate && endDate < startDate) {
+        alert('結束日期不能早於開始日期！');
+        return;
+    }
+
     const eventData = {
         title: document.getElementById('eventTitle').value,
-        date: document.getElementById('eventDate').value,
+        date: startDate,
+        endDate: endDate || null, // 如果沒有結束日期，設為 null
         time: document.getElementById('eventTime').value,
         description: document.getElementById('eventDescription').value,
         type: document.getElementById('eventType').value,
         owner: currentUser,
-        status: document.getElementById('eventType').value === 'invitation' ? 'pending' : 'confirmed'
+        status: document.getElementById('eventType').value === 'invitation' ? 'pending' : 'confirmed',
+        isMultiDay: endDate && endDate !== startDate // 判斷是否為多日行程
     };
 
     // 除錯資訊

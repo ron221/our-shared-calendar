@@ -359,6 +359,27 @@ body {
     animation: pulse 2s infinite;
 }
 
+/* 多日行程樣式 */
+.day-event-item.multi-day-event {
+    border-left-width: 5px;
+    font-weight: 600;
+    background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+    border-left-color: #ffa500;
+    position: relative;
+}
+
+.day-event-item.multi-day-event::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -3px;
+    width: 6px;
+    height: 6px;
+    background: #ffa500;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
 .event-time {
     font-weight: 600;
     color: #666;
