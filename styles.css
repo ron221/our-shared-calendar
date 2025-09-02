@@ -479,6 +479,7 @@ body {
     margin-bottom: 5px;
     text-align: center;
     flex-shrink: 0;
+    color: var(--text-primary);
 }
 
 .event-indicator {
@@ -522,7 +523,7 @@ body {
 }
 
 .day-event-item {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--bg-card);
     border-radius: 6px;
     padding: 4px 6px;
     margin-bottom: 3px;
@@ -536,6 +537,8 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
 .day-event-item:hover {
@@ -623,11 +626,12 @@ body {
     display: flex;
     justify-content: center;
     gap: 25px;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--bg-card);
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px var(--shadow);
+    border: 1px solid var(--border-color);
     flex-wrap: wrap;
 }
 
@@ -637,7 +641,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 15px;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--bg-card);
     padding: 15px;
     border-radius: 15px;
     margin-bottom: 20px;
@@ -726,6 +730,7 @@ body {
     gap: 8px;
     font-size: 0.95em;
     font-weight: 500;
+    color: var(--text-primary);
 }
 
 .legend-color {
@@ -769,13 +774,15 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-card);
+    color: var(--text-primary);
     margin: 5% auto;
     padding: 0;
     border-radius: 20px;
     width: 90%;
     max-width: 500px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px var(--shadow-hover);
+    border: 1px solid var(--border-color);
     animation: modalSlideIn 0.3s ease;
 }
 
@@ -837,11 +844,13 @@ body {
 .form-group select {
     width: 100%;
     padding: 12px;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     font-size: 1em;
     transition: border-color 0.3s ease;
     font-family: inherit;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .form-group input:focus,
