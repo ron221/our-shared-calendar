@@ -1,0 +1,645 @@
+// 全域變數
+let currentDate = new Date();
+let currentUser = 'cat'; // 預設為貓咪模式
+let events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+let selectedDate = null;
+let editingEventId = null;
+
+// 月份名稱
+const monthNames = [
+    '一月', '二月', '三月', '四月', '五月', '六月',
+    '七月', '八月', '九月', '十月', '十一月', '十二月'
+];
+
+// DOM 元素
+const calendarGrid = document.getElementById('calendar');
+const currentMonthElement = document.getElementById('currentMonth');
+const eventModal = document.getElementById('eventModal');
+const eventForm = document.getElementById('eventForm');
+const eventSidebar = document.getElementById('eventSidebar');
+
+// 初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCalendar();
+    setupEventListeners();
+    renderCalendar();
+});
+
+// 設置事件監聽器
+function setupEventListeners() {
+    // 用戶模式切換
+    document.getElementById('catMode').addEventListener('click', () => switchUser('cat'));
+    document.getElementById('mouseMode').addEventListener('click', () => switchUser('mouse'));
+
+    // 月份導航
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+
+    // 彈窗控制
+    document.querySelector('.close').addEventListener('click', closeModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('deleteBtn').addEventListener('click', deleteEvent);
+
+    // 表單提交
+    eventForm.addEventListener('submit', handleFormSubmit);
+
+    // 側邊欄控制
+    document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+
+    // 點擊彈窗外部關閉
+    window.addEventListener('click', (e) => {
+        if (e.target === eventModal) {
+            closeModal();
+        }
+    });
+}
+
+// 初始化日曆
+function initializeCalendar() {
+    // 如果是首次使用，添加一些示例事件
+    if (events.length === 0) {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const nextWeek = new Date(today);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+
+        events = [
+            {
+                id: generateId(),
+                title: '貓咪的午睡時間',
+                date: formatDate(today),
+                time: '14:00',
+                description: '在陽光下舒服地睡覺 😴',
+                type: 'personal',
+                owner: 'cat',
+                status: 'confirmed'
+            },
+            {
+                id: generateId(),
+                title: '小老鼠的起司時光',
+                date: formatDate(today),
+                time: '16:00',
+                description: '品嚐美味的起司 🧀',
+                type: 'personal',
+                owner: 'mouse',
+                status: 'confirmed'
+            },
+            {
+                id: generateId(),
+                title: '一起看電影',
+                date: formatDate(tomorrow),
+                time: '20:00',
+                description: '看一部浪漫的電影 🎬',
+                type: 'shared',
+                owner: 'cat',
+                status: 'confirmed'
+            },
+            {
+                id: generateId(),
+                title: '公園散步',
+                date: formatDate(nextWeek),
+                time: '10:00',
+                description: '在公園裡享受美好時光 🌳',
+                type: 'invitation',
+                owner: 'mouse',
+                status: 'pending'
+            }
+        ];
+        saveEvents();
+    }
+}
+
+// 切換用戶模式
+function switchUser(user) {
+    currentUser = user;
+
+    // 更新按鈕狀態
+    document.querySelectorAll('.user-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-user="${user}"]`).classList.add('active');
+
+    // 重新渲染日曆
+    renderCalendar();
+}
+
+// 渲染日曆
+function renderCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // 更新月份標題
+    currentMonthElement.textContent = `${year}年 ${monthNames[month]}`;
+
+    // 清空日曆網格
+    calendarGrid.innerHTML = '';
+
+    // 獲取月份第一天和最後一天
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+    // 生成42個日期格子（6週 x 7天）
+    for (let i = 0; i < 42; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+
+        const dayElement = createDayElement(date, month);
+        calendarGrid.appendChild(dayElement);
+    }
+}
+
+// 創建日期元素
+function createDayElement(date, currentMonth) {
+    const dayElement = document.createElement('div');
+    dayElement.className = 'calendar-day';
+
+    // 檢查是否為其他月份
+    if (date.getMonth() !== currentMonth) {
+        dayElement.classList.add('other-month');
+    }
+
+    // 檢查是否為今天
+    const today = new Date();
+    if (isSameDate(date, today)) {
+        dayElement.classList.add('today');
+    }
+
+    // 添加日期數字
+    const dayNumber = document.createElement('div');
+    dayNumber.className = 'day-number';
+    dayNumber.textContent = date.getDate();
+    dayElement.appendChild(dayNumber);
+
+    // 添加事件列表
+    const eventsContainer = createDayEventsContainer(date);
+    dayElement.appendChild(eventsContainer);
+
+    // 添加點擊事件
+    dayElement.addEventListener('click', () => {
+        selectedDate = new Date(date);
+        showDayEvents(date);
+    });
+
+    // 雙擊添加事件
+    dayElement.addEventListener('dblclick', () => {
+        selectedDate = new Date(date);
+        openEventModal();
+    });
+
+    return dayElement;
+}
+
+// 創建日期中的事件容器
+function createDayEventsContainer(date) {
+    const container = document.createElement('div');
+    container.className = 'day-events';
+
+    const dayEvents = getEventsForDate(date);
+
+    // 限制顯示的事件數量，避免溢出
+    const maxEvents = 3;
+    const eventsToShow = dayEvents.slice(0, maxEvents);
+
+    eventsToShow.forEach(event => {
+        const eventItem = createDayEventItem(event);
+        container.appendChild(eventItem);
+    });
+
+    // 如果有更多事件，顯示 "+N more" 提示
+    if (dayEvents.length > maxEvents) {
+        const moreItem = document.createElement('div');
+        moreItem.className = 'day-event-item more-events';
+        moreItem.textContent = `+${dayEvents.length - maxEvents} 更多`;
+        moreItem.style.cssText = `
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+            font-weight: 600;
+            text-align: center;
+        `;
+        container.appendChild(moreItem);
+    }
+
+    return container;
+}
+
+// 創建日期中的單個事件項目
+function createDayEventItem(event) {
+    const item = document.createElement('div');
+    item.className = `day-event-item ${getEventClass(event)}`;
+
+    // 創建時間和標題的顯示
+    let displayText = '';
+    if (event.time) {
+        displayText = `${event.time} ${event.title}`;
+    } else {
+        displayText = event.title;
+    }
+
+    item.textContent = displayText;
+    item.title = `${event.title}${event.description ? '\n' + event.description : ''}`;
+
+    // 點擊事件項目直接編輯
+    item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (event.owner === currentUser || event.type === 'shared') {
+            editEvent(event);
+        } else {
+            // 如果是別人的事件，顯示詳情
+            showEventDetails(event);
+        }
+    });
+
+    return item;
+}
+
+// 顯示事件詳情（只讀）
+function showEventDetails(event) {
+    const modal = document.getElementById('eventModal');
+    const form = document.getElementById('eventForm');
+
+    // 填充表單但設為只讀
+    document.getElementById('modalTitle').textContent = '行程詳情';
+    document.getElementById('eventTitle').value = event.title;
+    document.getElementById('eventDate').value = event.date;
+    document.getElementById('eventTime').value = event.time || '';
+    document.getElementById('eventDescription').value = event.description || '';
+    document.getElementById('eventType').value = event.type;
+
+    // 設置所有輸入為只讀
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.disabled = true;
+    });
+
+    // 隱藏操作按鈕，只顯示關閉按鈕
+    document.getElementById('deleteBtn').style.display = 'none';
+    document.querySelector('.btn-primary').style.display = 'none';
+    document.getElementById('cancelBtn').textContent = '關閉';
+
+    modal.style.display = 'block';
+
+    // 當關閉時恢復表單狀態
+    const originalCloseModal = closeModal;
+    window.closeModal = function() {
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
+        document.querySelector('.btn-primary').style.display = 'inline-block';
+        document.getElementById('cancelBtn').textContent = '取消';
+        originalCloseModal();
+        window.closeModal = originalCloseModal;
+    };
+}
+
+// 獲取特定日期的事件
+function getEventsForDate(date) {
+    const dateString = formatDate(date);
+    return events.filter(event => event.date === dateString);
+}
+
+// 獲取事件CSS類別
+function getEventClass(event) {
+    if (event.type === 'shared') return 'shared-event';
+    if (event.status === 'pending') return 'pending-event';
+    if (event.owner === 'cat') return 'cat-event';
+    if (event.owner === 'mouse') return 'mouse-event';
+    return 'personal-event';
+}
+
+// 顯示某天的事件
+function showDayEvents(date) {
+    const dayEvents = getEventsForDate(date);
+    const eventList = document.getElementById('eventList');
+
+    // 更新側邊欄標題
+    document.querySelector('.sidebar-header h3').textContent =
+        `${date.getMonth() + 1}月${date.getDate()}日 行程`;
+
+    // 清空事件列表
+    eventList.innerHTML = '';
+
+    if (dayEvents.length === 0) {
+        eventList.innerHTML = '<p style="text-align: center; color: #666;">這天沒有行程</p>';
+    } else {
+        dayEvents.forEach(event => {
+            const eventItem = createEventListItem(event);
+            eventList.appendChild(eventItem);
+        });
+    }
+
+    // 顯示側邊欄
+    eventSidebar.classList.add('open');
+}
+
+// 創建事件列表項目
+function createEventListItem(event) {
+    const item = document.createElement('div');
+    item.className = 'event-item';
+
+    const title = document.createElement('div');
+    title.className = 'event-title';
+    title.textContent = event.title;
+
+    const time = document.createElement('div');
+    time.className = 'event-time';
+    time.textContent = event.time ? `${event.time} - ${getEventTypeText(event)}` : getEventTypeText(event);
+
+    const description = document.createElement('div');
+    description.className = 'event-description';
+    description.textContent = event.description || '';
+
+    item.appendChild(title);
+    item.appendChild(time);
+    if (event.description) {
+        item.appendChild(description);
+    }
+
+    // 如果是待確認的邀請，添加確認/拒絕按鈕
+    if (event.status === 'pending' && event.owner !== currentUser) {
+        const actions = createEventActions(event);
+        item.appendChild(actions);
+    }
+
+    // 點擊編輯事件
+    item.addEventListener('click', () => {
+        if (event.owner === currentUser || event.type === 'shared') {
+            editEvent(event);
+        }
+    });
+
+    return item;
+}
+
+// 創建事件操作按鈕
+function createEventActions(event) {
+    const actions = document.createElement('div');
+    actions.className = 'event-actions';
+
+    const acceptBtn = document.createElement('button');
+    acceptBtn.className = 'action-btn accept-btn';
+    acceptBtn.textContent = '確認';
+    acceptBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        acceptInvitation(event.id);
+    });
+
+    const rejectBtn = document.createElement('button');
+    rejectBtn.className = 'action-btn reject-btn';
+    rejectBtn.textContent = '拒絕';
+    rejectBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        rejectInvitation(event.id);
+    });
+
+    actions.appendChild(acceptBtn);
+    actions.appendChild(rejectBtn);
+
+    return actions;
+}
+
+// 獲取事件類型文字
+function getEventTypeText(event) {
+    const ownerText = event.owner === 'cat' ? '🐱' : '🐭';
+    switch (event.type) {
+        case 'shared': return '🤝 共同行程';
+        case 'invitation': return `📩 ${ownerText} 的邀請`;
+        default: return `${ownerText} 個人行程`;
+    }
+}
+
+// 打開事件彈窗
+function openEventModal(event = null) {
+    editingEventId = event ? event.id : null;
+
+    // 重置表單
+    eventForm.reset();
+
+    if (event) {
+        // 編輯模式
+        document.getElementById('modalTitle').textContent = '編輯行程';
+        document.getElementById('eventTitle').value = event.title;
+        document.getElementById('eventDate').value = event.date;
+        document.getElementById('eventTime').value = event.time || '';
+        document.getElementById('eventDescription').value = event.description || '';
+        document.getElementById('eventType').value = event.type;
+        document.getElementById('deleteBtn').style.display = 'inline-block';
+    } else {
+        // 新增模式
+        document.getElementById('modalTitle').textContent = '新增行程';
+        if (selectedDate) {
+            document.getElementById('eventDate').value = formatDate(selectedDate);
+        }
+        document.getElementById('deleteBtn').style.display = 'none';
+    }
+
+    eventModal.style.display = 'block';
+}
+
+// 關閉彈窗
+function closeModal() {
+    eventModal.style.display = 'none';
+    editingEventId = null;
+}
+
+// 關閉側邊欄
+function closeSidebar() {
+    eventSidebar.classList.remove('open');
+}
+
+// 處理表單提交
+function handleFormSubmit(e) {
+    e.preventDefault();
+
+    const formData = new FormData(eventForm);
+    const eventData = {
+        title: document.getElementById('eventTitle').value,
+        date: document.getElementById('eventDate').value,
+        time: document.getElementById('eventTime').value,
+        description: document.getElementById('eventDescription').value,
+        type: document.getElementById('eventType').value,
+        owner: currentUser,
+        status: document.getElementById('eventType').value === 'invitation' ? 'pending' : 'confirmed'
+    };
+
+    if (editingEventId) {
+        // 更新現有事件
+        const eventIndex = events.findIndex(e => e.id === editingEventId);
+        if (eventIndex !== -1) {
+            events[eventIndex] = { ...events[eventIndex], ...eventData };
+        }
+    } else {
+        // 創建新事件
+        eventData.id = generateId();
+        events.push(eventData);
+    }
+
+    saveEvents();
+    renderCalendar();
+    closeModal();
+
+    // 如果側邊欄開啟，更新內容
+    if (eventSidebar.classList.contains('open')) {
+        showDayEvents(new Date(eventData.date));
+    }
+}
+
+// 編輯事件
+function editEvent(event) {
+    openEventModal(event);
+}
+
+// 刪除事件
+function deleteEvent() {
+    if (editingEventId && confirm('確定要刪除這個行程嗎？')) {
+        events = events.filter(e => e.id !== editingEventId);
+        saveEvents();
+        renderCalendar();
+        closeModal();
+
+        // 如果側邊欄開啟，更新內容
+        if (eventSidebar.classList.contains('open') && selectedDate) {
+            showDayEvents(selectedDate);
+        }
+    }
+}
+
+// 接受邀請
+function acceptInvitation(eventId) {
+    const eventIndex = events.findIndex(e => e.id === eventId);
+    if (eventIndex !== -1) {
+        events[eventIndex].status = 'confirmed';
+        events[eventIndex].type = 'shared';
+        saveEvents();
+        renderCalendar();
+
+        if (selectedDate) {
+            showDayEvents(selectedDate);
+        }
+
+        showNotification('已確認參加行程！', 'success');
+    }
+}
+
+// 拒絕邀請
+function rejectInvitation(eventId) {
+    if (confirm('確定要拒絕這個邀請嗎？')) {
+        events = events.filter(e => e.id !== eventId);
+        saveEvents();
+        renderCalendar();
+
+        if (selectedDate) {
+            showDayEvents(selectedDate);
+        }
+
+        showNotification('已拒絕邀請', 'info');
+    }
+}
+
+// 顯示通知
+function showNotification(message, type = 'info') {
+    // 創建通知元素
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+        color: white;
+        border-radius: 8px;
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // 3秒後自動移除
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// 工具函數
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+function isSameDate(date1, date2) {
+    return date1.toDateString() === date2.toDateString();
+}
+
+function saveEvents() {
+    localStorage.setItem('calendarEvents', JSON.stringify(events));
+}
+
+// 添加動畫CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// 鍵盤快捷鍵
+document.addEventListener('keydown', function(e) {
+    // ESC 關閉彈窗
+    if (e.key === 'Escape') {
+        if (eventModal.style.display === 'block') {
+            closeModal();
+        }
+        if (eventSidebar.classList.contains('open')) {
+            closeSidebar();
+        }
+    }
+
+    // 左右箭頭切換月份
+    if (e.key === 'ArrowLeft' && !e.target.matches('input, textarea')) {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+    }
+
+    if (e.key === 'ArrowRight' && !e.target.matches('input, textarea')) {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    }
+});

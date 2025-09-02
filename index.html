@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐱🐭 貓咪小老鼠共享日曆</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>
+                <span class="cat-icon">🐱</span>
+                貓咪小老鼠的共享日曆
+                <span class="mouse-icon">🐭</span>
+            </h1>
+            <div class="user-selector">
+                <button id="catMode" class="user-btn active" data-user="cat">
+                    <i class="fas fa-cat"></i> 貓咪模式
+                </button>
+                <button id="mouseMode" class="user-btn" data-user="mouse">
+                    <i class="fas fa-mouse"></i> 小老鼠模式
+                </button>
+            </div>
+        </header>
+
+        <div class="calendar-controls">
+            <button id="prevMonth" class="nav-btn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <h2 id="currentMonth"></h2>
+            <button id="nextMonth" class="nav-btn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="weekdays">
+                <div class="weekday">日</div>
+                <div class="weekday">一</div>
+                <div class="weekday">二</div>
+                <div class="weekday">三</div>
+                <div class="weekday">四</div>
+                <div class="weekday">五</div>
+                <div class="weekday">六</div>
+            </div>
+            <div id="calendar" class="calendar-grid"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color cat-event"></span>
+                <span>貓咪的行程</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color mouse-event"></span>
+                <span>小老鼠的行程</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color shared-event"></span>
+                <span>共同行程</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color pending-event"></span>
+                <span>待確認</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 行程詳情彈窗 -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增行程</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <div class="form-group">
+                        <label for="eventTitle">行程標題：</label>
+                        <input type="text" id="eventTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventDate">日期：</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventTime">時間：</label>
+                        <input type="time" id="eventTime">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventDescription">描述：</label>
+                        <textarea id="eventDescription" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventType">行程類型：</label>
+                        <select id="eventType">
+                            <option value="personal">個人行程</option>
+                            <option value="shared">共同行程</option>
+                            <option value="invitation">邀請對方</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">取消</button>
+                        <button type="submit" class="btn btn-primary">儲存</button>
+                        <button type="button" id="deleteBtn" class="btn btn-danger" style="display: none;">刪除</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 行程列表側邊欄 -->
+    <div id="eventSidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>今日行程</h3>
+            <button id="closeSidebar" class="close-sidebar">&times;</button>
+        </div>
+        <div id="eventList" class="event-list"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
