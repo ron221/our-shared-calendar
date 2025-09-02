@@ -20,6 +20,7 @@ let events = [];
 let selectedDate = null;
 let editingEventId = null;
 let taiwanHolidays = {};
+let isDarkMode = false;
 
 // 台灣國定假日資料
 function initializeTaiwanHolidays() {
@@ -74,6 +75,33 @@ function getTaiwanHoliday(date) {
     return taiwanHolidays[dateStr] || null;
 }
 
+// 深色模式切換功能
+function toggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    const body = document.body;
+    const themeIcon = document.querySelector('.theme-icon');
+
+    if (isDarkMode) {
+        body.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('darkMode', 'true');
+    } else {
+        body.removeAttribute('data-theme');
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('darkMode', 'false');
+    }
+}
+
+// 初始化深色模式設定
+function initializeDarkMode() {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'true') {
+        isDarkMode = true;
+        document.body.setAttribute('data-theme', 'dark');
+        document.querySelector('.theme-icon').textContent = '☀️';
+    }
+}
+
 // 拖拽相關變數
 let draggedEvent = null;
 let draggedElement = null;
@@ -104,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
         initializeTaiwanHolidays();
+        initializeDarkMode();
         initializeFirebase();
         setupEventListeners();
         console.log('✅ 日曆初始化完成！');
@@ -157,6 +186,9 @@ function setupEventListeners() {
         selectedDate = new Date();
         openEventModal();
     });
+
+    // 深色模式切換按鈕
+    document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
 
             // 側邊欄控制
     document.getElementById('closeSidebar').addEventListener('click', closeSidebar);

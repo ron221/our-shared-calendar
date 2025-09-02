@@ -1,3 +1,30 @@
+/* CSS 變數定義 */
+:root {
+    /* 淺色模式變數 */
+    --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --bg-secondary: #ffffff;
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --text-primary: #333;
+    --text-secondary: #666;
+    --text-light: #999;
+    --border-color: #e0e0e0;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+}
+
+/* 深色模式變數 */
+[data-theme="dark"] {
+    --bg-primary: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    --bg-secondary: #1e1e1e;
+    --bg-card: rgba(40, 40, 40, 0.95);
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-light: #888;
+    --border-color: #444;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow-hover: rgba(0, 0, 0, 0.4);
+}
+
 /* 基礎樣式 */
 * {
     margin: 0;
@@ -7,9 +34,10 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg-primary);
     min-height: 100vh;
-    color: #333;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .container {
@@ -22,11 +50,13 @@ body {
 .header {
     text-align: center;
     margin-bottom: 30px;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-card);
     padding: 25px;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px var(--shadow);
     backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    position: relative;
 }
 
 .header h1 {
@@ -90,6 +120,43 @@ body {
 .user-btn[data-user="mouse"].active {
     background: linear-gradient(45deg, #a8edea, #fed6e3);
     color: #fff;
+}
+
+/* 深色模式切換按鈕 */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.theme-btn {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+    background: var(--bg-secondary);
+    box-shadow: 0 4px 12px var(--shadow-hover);
+}
+
+.theme-icon {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.theme-btn:hover .theme-icon {
+    transform: rotate(15deg);
 }
 
 /* 視圖選擇器 */
@@ -167,11 +234,12 @@ body {
 
 /* 日曆區域 */
 .calendar-wrapper {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-card);
     border-radius: 20px;
     padding: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px var(--shadow);
     margin-bottom: 25px;
+    border: 1px solid var(--border-color);
 }
 
 .weekdays {
@@ -344,11 +412,12 @@ body {
     justify-content: flex-start;
     align-items: stretch;
     padding: 8px;
-    border: 2px solid #e9ecef;
+    border: 2px solid var(--border-color);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #fff;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     position: relative;
     min-height: 120px;
     max-height: 120px;
@@ -358,7 +427,7 @@ body {
 .calendar-day:hover {
     border-color: #667eea;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px var(--shadow-hover);
 }
 
 .calendar-day.other-month {
@@ -1165,6 +1234,21 @@ body {
     .calendar-wrapper.week-view .holiday-name {
         font-size: 0.65em;
         margin-top: 3px;
+    }
+
+    /* 手機版深色模式切換按鈕調整 */
+    .theme-toggle {
+        top: 15px;
+        right: 15px;
+    }
+
+    .theme-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .theme-icon {
+        font-size: 18px;
     }
 }
 
