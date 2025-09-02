@@ -532,11 +532,23 @@ function createDayEventItem(event, currentDate = null) {
         item.classList.add('multi-day-event');
     }
 
-        // 創建時間和標題的顯示
+            // 創建時間和標題的顯示
     let displayText = '';
 
     // 檢查是否為手機螢幕
     const isMobile = window.innerWidth <= 768;
+
+    // 根據行程類型和擁有者添加圖標
+    let ownerIcon = '';
+    if (event.type === 'shared') {
+        ownerIcon = '🤝 '; // 共同行程使用握手圖標
+    } else if (event.status === 'pending') {
+        ownerIcon = event.owner === 'cat' ? '🐱📩 ' : '🐭📩 '; // 待確認邀請
+    } else if (event.owner === 'cat') {
+        ownerIcon = '🐱 ';
+    } else if (event.owner === 'mouse') {
+        ownerIcon = '🐭 ';
+    }
 
     if (event.isMultiDay || event.endDate) {
         // 多日行程的顯示
@@ -547,12 +559,12 @@ function createDayEventItem(event, currentDate = null) {
             // 手機版：簡化顯示
             const start = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
             const end = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
-            displayText = `📅${event.title} (${start}-${end})`;
+            displayText = `${ownerIcon}📅${event.title} (${start}-${end})`;
         } else {
             // 桌面版：完整顯示
             const start = `${startDate.getMonth() + 1}/${startDate.getDate()}`;
             const end = `${endDate.getMonth() + 1}/${endDate.getDate()}`;
-            displayText = `📅 ${event.title} (${start}-${end})`;
+            displayText = `${ownerIcon}📅 ${event.title} (${start}-${end})`;
         }
     } else {
         // 單日行程的顯示
@@ -560,12 +572,12 @@ function createDayEventItem(event, currentDate = null) {
             if (isMobile) {
                 // 手機版：縮短時間格式
                 const shortTime = event.time.substring(0, 5); // 去掉秒數
-                displayText = `${shortTime} ${event.title}`;
+                displayText = `${ownerIcon}${shortTime} ${event.title}`;
             } else {
-                displayText = `${event.time} ${event.title}`;
+                displayText = `${ownerIcon}${event.time} ${event.title}`;
             }
         } else {
-            displayText = event.title;
+            displayText = `${ownerIcon}${event.title}`;
         }
     }
 
@@ -702,7 +714,20 @@ function createEventListItem(event) {
 
     const title = document.createElement('div');
     title.className = 'event-title';
-    title.textContent = event.title;
+
+    // 添加行程類型和擁有者圖標
+    let ownerIcon = '';
+    if (event.type === 'shared') {
+        ownerIcon = '🤝 '; // 共同行程使用握手圖標
+    } else if (event.status === 'pending') {
+        ownerIcon = event.owner === 'cat' ? '🐱📩 ' : '🐭📩 '; // 待確認邀請
+    } else if (event.owner === 'cat') {
+        ownerIcon = '🐱 ';
+    } else if (event.owner === 'mouse') {
+        ownerIcon = '🐭 ';
+    }
+
+    title.textContent = `${ownerIcon}${event.title}`;
 
     const time = document.createElement('div');
     time.className = 'event-time';

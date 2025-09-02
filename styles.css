@@ -433,6 +433,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 .day-event-item:hover {
