@@ -293,7 +293,17 @@ function createDayElement(date, currentMonth) {
     // 添加日期數字
     const dayNumber = document.createElement('div');
     dayNumber.className = 'day-number';
-    dayNumber.textContent = date.getDate();
+
+    // 在週視圖的手機版本中顯示更詳細的日期資訊
+    const isMobile = window.innerWidth <= 768;
+    if (currentView === 'week' && isMobile) {
+        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+        const weekday = weekdays[date.getDay()];
+        dayNumber.innerHTML = `${weekday}<br/>${date.getDate()}`;
+    } else {
+        dayNumber.textContent = date.getDate();
+    }
+
     dayElement.appendChild(dayNumber);
 
     // 添加事件列表
@@ -345,23 +355,41 @@ function createDayEventsContainer(date) {
 
     const eventsToShow = dayEvents.slice(0, maxEvents);
 
-    eventsToShow.forEach(event => {
-        const eventItem = createDayEventItem(event);
-        container.appendChild(eventItem);
-    });
+        if (eventsToShow.length === 0) {
+        // 如果沒有行程，在週視圖手機版顯示提示
+        const isMobile = window.innerWidth <= 768;
+        if (currentView === 'week' && isMobile) {
+            const emptyItem = document.createElement('div');
+            emptyItem.className = 'day-event-item empty-day';
+            emptyItem.textContent = '無行程';
+            emptyItem.style.cssText = `
+                background: rgba(200, 200, 200, 0.1);
+                border-left-color: #ccc;
+                color: #999;
+                font-style: italic;
+                text-align: center;
+            `;
+            container.appendChild(emptyItem);
+        }
+    } else {
+        eventsToShow.forEach(event => {
+            const eventItem = createDayEventItem(event);
+            container.appendChild(eventItem);
+        });
 
-    // 如果有更多事件，顯示 "+N more" 提示
-    if (dayEvents.length > maxEvents) {
-        const moreItem = document.createElement('div');
-        moreItem.className = 'day-event-item more-events';
-        moreItem.textContent = `+${dayEvents.length - maxEvents} 更多`;
-        moreItem.style.cssText = `
-            background: rgba(102, 126, 234, 0.1);
-            border-left-color: #667eea;
-            font-weight: 600;
-            text-align: center;
-        `;
-        container.appendChild(moreItem);
+        // 如果有更多事件，顯示 "+N more" 提示
+        if (dayEvents.length > maxEvents) {
+            const moreItem = document.createElement('div');
+            moreItem.className = 'day-event-item more-events';
+            moreItem.textContent = `+${dayEvents.length - maxEvents} 更多`;
+            moreItem.style.cssText = `
+                background: rgba(102, 126, 234, 0.1);
+                border-left-color: #667eea;
+                font-weight: 600;
+                text-align: center;
+            `;
+            container.appendChild(moreItem);
+        }
     }
 
     return container;

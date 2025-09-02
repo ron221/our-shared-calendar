@@ -213,42 +213,85 @@ body {
     font-size: 1.2em;
 }
 
-/* 週視圖手機優化 */
+/* 週視圖手機優化 - 垂直佈局 */
 @media (max-width: 768px) {
-    .calendar-wrapper.week-view .calendar-day {
-        min-height: 120px;
-        max-height: 120px;
-        padding: 4px;
+    .calendar-wrapper.week-view .weekdays {
+        display: none; /* 隱藏星期標題，因為每個日期方格會顯示完整日期 */
     }
 
-    .calendar-wrapper.week-view .day-event-item {
-        font-size: 0.7em;
-        padding: 3px 5px;
-        margin-bottom: 2px;
+    .calendar-wrapper.week-view .calendar-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .calendar-wrapper.week-view .calendar-day {
+        min-height: 80px;
+        max-height: none;
+        padding: 12px;
+        display: flex;
+        align-items: flex-start;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .calendar-wrapper.week-view .day-number {
         font-size: 0.9em;
-        margin-bottom: 4px;
+        font-weight: bold;
+        min-width: 60px;
+        text-align: center;
+        margin-right: 12px;
+        margin-bottom: 0;
+        padding: 8px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 8px;
+        flex-shrink: 0;
+        line-height: 1.2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .calendar-wrapper.week-view .day-events {
+        flex: 1;
+        margin-top: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .calendar-wrapper.week-view .day-event-item {
+        font-size: 0.85em;
+        padding: 8px 12px;
+        margin-bottom: 0;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-left-width: 4px;
+    }
+
+    .calendar-wrapper.week-view .calendar-day.today .day-number {
+        background: linear-gradient(45deg, #ff6b6b, #ffa500);
     }
 }
 
 @media (max-width: 480px) {
     .calendar-wrapper.week-view .calendar-day {
-        min-height: 100px;
-        max-height: 100px;
-        padding: 3px;
-    }
-
-    .calendar-wrapper.week-view .day-event-item {
-        font-size: 0.6em;
-        padding: 2px 4px;
-        margin-bottom: 1px;
+        padding: 10px;
     }
 
     .calendar-wrapper.week-view .day-number {
+        font-size: 1em;
+        min-width: 50px;
+        margin-right: 10px;
+        padding: 6px;
+    }
+
+    .calendar-wrapper.week-view .day-event-item {
         font-size: 0.8em;
-        margin-bottom: 3px;
+        padding: 6px 10px;
     }
 }
 
