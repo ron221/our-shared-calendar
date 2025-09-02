@@ -96,6 +96,13 @@ function setupEventListeners() {
     // 表單提交
     eventForm.addEventListener('submit', handleFormSubmit);
 
+    // 手機版新增按鈕
+    document.getElementById('mobileAddBtn').addEventListener('click', () => {
+        // 使用今天的日期作為預設日期
+        const today = new Date();
+        openEventModal(today);
+    });
+
             // 側邊欄控制
     document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
 
