@@ -577,33 +577,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
-.sync-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-}
 
-.export-btn {
-    background: linear-gradient(45deg, #28a745, #20c997);
-    color: white;
-}
-
-.import-btn {
-    background: linear-gradient(45deg, #007bff, #6610f2);
-    color: white;
-}
-
-.sync-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
 
 .legend-item {
     display: flex;
@@ -960,22 +934,15 @@ body {
          gap: 8px;
      }
 
-          .sync-controls {
+               .sync-controls {
          padding: 10px;
          margin-bottom: 15px;
-         gap: 10px;
-         flex-direction: column;
+         justify-content: center;
      }
 
      .sync-status {
          padding: 6px 12px;
          font-size: 0.8em;
-     }
-
-     .sync-btn {
-         padding: 8px 15px;
-         font-size: 0.8em;
-         gap: 5px;
      }
 
      .legend-item {
