@@ -142,16 +142,12 @@ function fallbackToLocalMode() {
     // 從本地儲存載入資料
     events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
 
-    // 如果沒有資料，初始化示例資料
-    if (events.length === 0) {
-        initializeSampleEvents();
-    }
-
     renderCalendar();
-    console.log('📱 使用本地模式');
+    console.log('📱 使用本地模式，載入', events.length, '個本地行程');
 }
 
-// 初始化示例事件
+// 初始化示例事件（保留供手動測試使用）
+// 如需要測試資料，可在 Console 中執行：initializeSampleEvents()
 function initializeSampleEvents() {
     const today = new Date();
     const tomorrow = new Date(today);
@@ -215,6 +211,7 @@ function initializeSampleEvents() {
         }
     ];
     saveEvents();
+    console.log('🎭 已重新載入示例資料');
 }
 
 // 設置 Firebase 監聽器
@@ -230,10 +227,11 @@ function setupFirebaseListeners() {
             events = data;
             renderCalendar();
             console.log('🔄 從雲端同步資料:', events.length, '個行程');
-        } else if (events.length === 0) {
-            // 如果雲端沒有資料且本地也沒有，初始化示例資料
-            initializeSampleEvents();
-            syncToFirebase();
+        } else {
+            // 如果雲端沒有資料，設為空陣列
+            events = [];
+            renderCalendar();
+            console.log('📋 雲端資料為空，顯示空日曆');
         }
     });
 
