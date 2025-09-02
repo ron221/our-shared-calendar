@@ -1,6 +1,7 @@
 // 全域變數
 let currentDate = new Date();
 let currentUser = 'cat'; // 預設為貓咪模式
+let currentView = 'month'; // 預設為月視圖
 let events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
 let selectedDate = null;
 let editingEventId = null;
@@ -13,7 +14,8 @@ const monthNames = [
 
 // DOM 元素
 const calendarGrid = document.getElementById('calendar');
-const currentMonthElement = document.getElementById('currentMonth');
+const currentPeriodElement = document.getElementById('currentPeriod');
+const calendarWrapper = document.querySelector('.calendar-wrapper');
 const eventModal = document.getElementById('eventModal');
 const eventForm = document.getElementById('eventForm');
 const eventSidebar = document.getElementById('eventSidebar');
@@ -31,14 +33,26 @@ function setupEventListeners() {
     document.getElementById('catMode').addEventListener('click', () => switchUser('cat'));
     document.getElementById('mouseMode').addEventListener('click', () => switchUser('mouse'));
 
-    // 月份導航
-    document.getElementById('prevMonth').addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() - 1);
+    // 視圖切換
+    document.getElementById('monthView').addEventListener('click', () => switchView('month'));
+    document.getElementById('weekView').addEventListener('click', () => switchView('week'));
+
+    // 期間導航
+    document.getElementById('prevPeriod').addEventListener('click', () => {
+        if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+        } else {
+            currentDate.setDate(currentDate.getDate() - 7);
+        }
         renderCalendar();
     });
 
-    document.getElementById('nextMonth').addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() + 1);
+    document.getElementById('nextPeriod').addEventListener('click', () => {
+        if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        } else {
+            currentDate.setDate(currentDate.getDate() + 7);
+        }
         renderCalendar();
     });
 
@@ -132,13 +146,39 @@ function switchUser(user) {
     renderCalendar();
 }
 
+// 切換視圖模式
+function switchView(view) {
+    currentView = view;
+
+    // 更新按鈕狀態
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+    // 更新日曆容器的CSS類
+    calendarWrapper.className = `calendar-wrapper ${view}-view`;
+
+    // 重新渲染日曆
+    renderCalendar();
+}
+
 // 渲染日曆
 function renderCalendar() {
+    if (currentView === 'month') {
+        renderMonthView();
+    } else {
+        renderWeekView();
+    }
+}
+
+// 渲染月視圖
+function renderMonthView() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    // 更新月份標題
-    currentMonthElement.textContent = `${year}年 ${monthNames[month]}`;
+    // 更新標題
+    currentPeriodElement.textContent = `${year}年 ${monthNames[month]}`;
 
     // 清空日曆網格
     calendarGrid.innerHTML = '';
@@ -157,6 +197,51 @@ function renderCalendar() {
         const dayElement = createDayElement(date, month);
         calendarGrid.appendChild(dayElement);
     }
+}
+
+// 渲染週視圖
+function renderWeekView() {
+    const startOfWeek = getStartOfWeek(currentDate);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    // 更新標題
+    const startMonth = monthNames[startOfWeek.getMonth()];
+    const endMonth = monthNames[endOfWeek.getMonth()];
+    const startYear = startOfWeek.getFullYear();
+    const endYear = endOfWeek.getFullYear();
+
+    let titleText;
+    if (startYear === endYear && startMonth === endMonth) {
+        titleText = `${startYear}年 ${startMonth} ${startOfWeek.getDate()}-${endOfWeek.getDate()}日`;
+    } else if (startYear === endYear) {
+        titleText = `${startYear}年 ${startMonth}${startOfWeek.getDate()}日 - ${endMonth}${endOfWeek.getDate()}日`;
+    } else {
+        titleText = `${startYear}年${startMonth}${startOfWeek.getDate()}日 - ${endYear}年${endMonth}${endOfWeek.getDate()}日`;
+    }
+
+    currentPeriodElement.textContent = titleText;
+
+    // 清空日曆網格
+    calendarGrid.innerHTML = '';
+
+    // 生成7個日期格子
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+
+        const dayElement = createDayElement(date, date.getMonth());
+        calendarGrid.appendChild(dayElement);
+    }
+}
+
+// 獲取週的開始日期（星期日）
+function getStartOfWeek(date) {
+    const startOfWeek = new Date(date);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day;
+    startOfWeek.setDate(diff);
+    return startOfWeek;
 }
 
 // 創建日期元素
@@ -632,14 +717,31 @@ document.addEventListener('keydown', function(e) {
         }
     }
 
-    // 左右箭頭切換月份
+        // 左右箭頭切換期間
     if (e.key === 'ArrowLeft' && !e.target.matches('input, textarea')) {
-        currentDate.setMonth(currentDate.getMonth() - 1);
+        if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+        } else {
+            currentDate.setDate(currentDate.getDate() - 7);
+        }
         renderCalendar();
     }
 
     if (e.key === 'ArrowRight' && !e.target.matches('input, textarea')) {
-        currentDate.setMonth(currentDate.getMonth() + 1);
+        if (currentView === 'month') {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        } else {
+            currentDate.setDate(currentDate.getDate() + 7);
+        }
         renderCalendar();
+    }
+
+    // M 鍵切換到月視圖，W 鍵切換到週視圖
+    if (e.key === 'm' || e.key === 'M') {
+        switchView('month');
+    }
+
+    if (e.key === 'w' || e.key === 'W') {
+        switchView('week');
     }
 });

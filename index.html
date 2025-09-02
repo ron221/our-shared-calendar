@@ -29,12 +29,21 @@
             </div>
         </header>
 
+        <div class="view-selector">
+            <button id="monthView" class="view-btn active" data-view="month">
+                <i class="fas fa-calendar-alt"></i> 月視圖
+            </button>
+            <button id="weekView" class="view-btn" data-view="week">
+                <i class="fas fa-calendar-week"></i> 週視圖
+            </button>
+        </div>
+
         <div class="calendar-controls">
-            <button id="prevMonth" class="nav-btn">
+            <button id="prevPeriod" class="nav-btn">
                 <i class="fas fa-chevron-left"></i>
             </button>
-            <h2 id="currentMonth"></h2>
-            <button id="nextMonth" class="nav-btn">
+            <h2 id="currentPeriod"></h2>
+            <button id="nextPeriod" class="nav-btn">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>

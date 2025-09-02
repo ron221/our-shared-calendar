@@ -92,6 +92,45 @@ body {
     color: #fff;
 }
 
+/* 視圖選擇器 */
+.view-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.view-btn {
+    padding: 10px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    background: #fff;
+    color: #666;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.view-btn:hover {
+    border-color: #667eea;
+    transform: translateY(-1px);
+}
+
+.view-btn.active {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border-color: #667eea;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
 /* 日曆控制區域 */
 .calendar-controls {
     display: flex;
@@ -120,7 +159,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-#currentMonth {
+#currentPeriod {
     font-size: 1.8em;
     font-weight: 600;
     color: #333;
@@ -156,6 +195,22 @@ body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
+}
+
+/* 週視圖樣式 */
+.calendar-wrapper.week-view .calendar-day {
+    min-height: 150px;
+    max-height: 150px;
+}
+
+.calendar-wrapper.week-view .day-event-item {
+    font-size: 0.8em;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+}
+
+.calendar-wrapper.week-view .day-number {
+    font-size: 1.2em;
 }
 
 .calendar-day {
@@ -552,8 +607,17 @@ body {
         padding: 10px 15px;
     }
 
-    #currentMonth {
+    #currentPeriod {
         font-size: 1.4em;
+    }
+
+    .view-selector {
+        padding: 10px;
+    }
+
+    .view-btn {
+        padding: 8px 15px;
+        font-size: 0.85em;
     }
 
     .legend {
