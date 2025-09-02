@@ -371,6 +371,39 @@ body {
     font-weight: bold;
 }
 
+/* 國定假日樣式 */
+.calendar-day.holiday {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    border: 2px solid #ff6b9d;
+}
+
+.calendar-day.holiday.today {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff6b9d 100%);
+    border: 2px solid #ffffff;
+}
+
+.holiday-name {
+    font-size: 0.7em;
+    color: #d63384;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 2px;
+    padding: 2px 4px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    line-height: 1.2;
+}
+
+.calendar-day.holiday .holiday-name {
+    color: #8b1538;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.calendar-day.holiday.today .holiday-name {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .day-number {
     font-size: 1.1em;
     font-weight: 600;
@@ -646,6 +679,11 @@ body {
 
 .pending-event {
     background: linear-gradient(45deg, #d299c2, #fef9d7);
+}
+
+.holiday {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    border: 1px solid #ff6b9d;
 }
 
 /* 彈窗樣式 */
@@ -1115,6 +1153,18 @@ body {
     /* 調整同步狀態位置，避免與新增按鈕重疊 */
     .sync-status {
         bottom: 90px;
+    }
+
+    /* 手機版國定假日樣式優化 */
+    .holiday-name {
+        font-size: 0.6em;
+        padding: 1px 3px;
+        margin-top: 1px;
+    }
+
+    .calendar-wrapper.week-view .holiday-name {
+        font-size: 0.65em;
+        margin-top: 3px;
     }
 }
 

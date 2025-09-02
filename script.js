@@ -19,6 +19,60 @@ let currentView = 'month'; // 預設為月視圖
 let events = [];
 let selectedDate = null;
 let editingEventId = null;
+let taiwanHolidays = {};
+
+// 台灣國定假日資料
+function initializeTaiwanHolidays() {
+    const currentYear = new Date().getFullYear();
+
+    // 2024年台灣國定假日
+    const holidays2024 = {
+        '2024-01-01': '元旦',
+        '2024-02-08': '農曆除夕',
+        '2024-02-09': '農曆春節',
+        '2024-02-10': '農曆春節',
+        '2024-02-11': '農曆春節',
+        '2024-02-12': '農曆春節',
+        '2024-02-13': '農曆春節',
+        '2024-02-14': '農曆春節',
+        '2024-02-28': '和平紀念日',
+        '2024-04-04': '兒童節',
+        '2024-04-05': '清明節',
+        '2024-05-01': '勞動節',
+        '2024-06-10': '端午節',
+        '2024-09-17': '中秋節',
+        '2024-10-10': '國慶日',
+        '2024-12-25': '行憲紀念日'
+    };
+
+    // 2025年台灣國定假日
+    const holidays2025 = {
+        '2025-01-01': '元旦',
+        '2025-01-28': '農曆除夕',
+        '2025-01-29': '農曆春節',
+        '2025-01-30': '農曆春節',
+        '2025-01-31': '農曆春節',
+        '2025-02-01': '農曆春節',
+        '2025-02-03': '農曆春節',
+        '2025-02-28': '和平紀念日',
+        '2025-04-04': '兒童節',
+        '2025-04-05': '清明節',
+        '2025-05-01': '勞動節',
+        '2025-05-31': '端午節',
+        '2025-10-06': '中秋節',
+        '2025-10-10': '國慶日',
+        '2025-12-25': '行憲紀念日'
+    };
+
+    // 合併假日資料
+    taiwanHolidays = { ...holidays2024, ...holidays2025 };
+}
+
+// 檢查是否為台灣國定假日
+function getTaiwanHoliday(date) {
+    const dateStr = formatDate(date);
+    return taiwanHolidays[dateStr] || null;
+}
 
 // 拖拽相關變數
 let draggedEvent = null;
@@ -49,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 DOM 載入完成，開始初始化...');
 
     try {
+        initializeTaiwanHolidays();
         initializeFirebase();
         setupEventListeners();
         console.log('✅ 日曆初始化完成！');
@@ -439,6 +494,16 @@ function createDayElement(date, currentMonth) {
     }
 
     dayElement.appendChild(dayNumber);
+
+    // 檢查並顯示國定假日
+    const holiday = getTaiwanHoliday(date);
+    if (holiday) {
+        const holidayElement = document.createElement('div');
+        holidayElement.className = 'holiday-name';
+        holidayElement.textContent = holiday;
+        dayElement.appendChild(holidayElement);
+        dayElement.classList.add('holiday');
+    }
 
     // 添加事件列表
     const eventsContainer = createDayEventsContainer(date);
