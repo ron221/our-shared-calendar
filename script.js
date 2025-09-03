@@ -689,7 +689,9 @@ function createDayEventItem(event, currentDate = null) {
 
     // 根據行程類型和擁有者添加圖標
     let ownerIcon = '';
-    if (event.type === 'shared') {
+    if (event.isFromGoogleCalendar) {
+        ownerIcon = '🔗 '; // Google Calendar 使用連結圖標
+    } else if (event.type === 'shared') {
         ownerIcon = '🤝 '; // 共同行程使用握手圖標
     } else if (event.status === 'pending') {
         ownerIcon = event.owner === 'cat' ? '🐱📩 ' : '🐭📩 '; // 待確認邀請
@@ -887,7 +889,9 @@ function createEventListItem(event) {
 
     // 添加行程類型和擁有者圖標
     let ownerIcon = '';
-    if (event.type === 'shared') {
+    if (event.isFromGoogleCalendar) {
+        ownerIcon = '🔗 '; // Google Calendar 使用連結圖標
+    } else if (event.type === 'shared') {
         ownerIcon = '🤝 '; // 共同行程使用握手圖標
     } else if (event.status === 'pending') {
         ownerIcon = event.owner === 'cat' ? '🐱📩 ' : '🐭📩 '; // 待確認邀請
@@ -1491,6 +1495,96 @@ function showSwipeFeedback(direction) {
 
 // ==================== Google Calendar API 整合 ====================
 
+// 驗證保存的 token 是否仍然有效
+async function validateSavedToken() {
+    if (!googleCalendarAuth || !googleCalendarAuth.accessToken) {
+        return;
+    }
+
+    try {
+        // 設置當前 token
+        gapi.client.setToken({ access_token: googleCalendarAuth.accessToken });
+
+        // 進行一個簡單的 API 調用來測試 token 是否有效
+        await gapi.client.calendar.calendarList.list({ maxResults: 1 });
+
+        console.log('✅ 保存的 access token 仍然有效');
+    } catch (error) {
+        console.log('⚠️ 保存的 access token 已過期');
+
+        // 如果是 401 錯誤，表示 token 過期，靜默斷開連接
+        if (error.status === 401 || (error.result && error.result.error && error.result.error.code === 401)) {
+            console.log('🔄 Token 已過期，自動斷開連接');
+            disconnectGoogleCalendar(true);
+            updateGoogleCalendarStatus('disconnected', '授權已過期，請重新連接');
+        }
+    }
+}
+
+// 確保有效的 access token
+async function ensureValidToken() {
+    if (!googleCalendarAuth || !googleCalendarAuth.accessToken) {
+        throw new Error('沒有保存的授權資訊');
+    }
+
+    // 檢查 token 是否仍然有效
+    try {
+        // 設置當前 token
+        gapi.client.setToken({ access_token: googleCalendarAuth.accessToken });
+
+        // 進行一個簡單的 API 調用來測試 token 是否有效
+        await gapi.client.calendar.calendarList.list({ maxResults: 1 });
+
+        console.log('✅ Access token 仍然有效');
+        return;
+    } catch (error) {
+        console.log('⚠️ Access token 可能已過期，需要重新授權');
+
+        // 如果是 401 錯誤，表示 token 過期
+        if (error.status === 401 || (error.result && error.result.error && error.result.error.code === 401)) {
+            console.log('🔄 Token 已過期，嘗試重新獲取...');
+
+            // 清除舊的 token
+            gapi.client.setToken(null);
+
+            // 重新請求授權
+            return new Promise((resolve, reject) => {
+                if (!tokenClient) {
+                    reject(new Error('Token client 未初始化'));
+                    return;
+                }
+
+                // 設置臨時回調
+                const originalCallback = tokenClient.callback;
+                tokenClient.callback = (response) => {
+                    // 恢復原始回調
+                    tokenClient.callback = originalCallback;
+
+                    if (response.error) {
+                        console.error('重新授權失敗:', response.error);
+                        reject(new Error('重新授權失敗'));
+                        return;
+                    }
+
+                                        // 更新 access token
+                    googleCalendarAuth.accessToken = response.access_token;
+                    localStorage.setItem('googleCalendarAuth', JSON.stringify(googleCalendarAuth));
+
+                    console.log('✅ 成功獲取新的 access token');
+                    showNotification('已自動更新 Google Calendar 授權', 'success');
+                    resolve();
+                };
+
+                // 請求新的 token
+                tokenClient.requestAccessToken({ prompt: '' }); // 不顯示選擇帳戶提示
+            });
+        } else {
+            // 其他錯誤，直接拋出
+            throw error;
+        }
+    }
+}
+
 // 初始化 Google Calendar API
 function initializeGoogleCalendar() {
     // 檢查是否為測試模式
@@ -1599,6 +1693,11 @@ async function initGoogleApiClient() {
                     updateGoogleCalendarStatus('connected', `已連接：${googleCalendarAuth.email || '用戶'}`);
                     showGoogleCalendarButtons(true);
                     isGoogleCalendarEnabled = true;
+
+                    // 在背景中驗證 token 是否仍然有效
+                    setTimeout(() => {
+                        validateSavedToken();
+                    }, 1000);
                 } catch (error) {
                     console.warn('⚠️ 保存的授權資料無效');
                     localStorage.removeItem('googleCalendarAuth');
@@ -1655,7 +1754,7 @@ async function connectGoogleCalendar() {
             setTimeout(() => {
                 googleCalendarAuth = {
                     email: 'demo@example.com',
-                    name: '測試用戶',
+                    name: '測試用戶 (Demo)',
                     accessToken: 'demo_token'
                 };
 
@@ -1724,17 +1823,40 @@ async function handleAuthSuccess(accessToken) {
         // 設置 access token
         gapi.client.setToken({ access_token: accessToken });
 
-        // 獲取用戶資訊
+        // 獲取用戶的主要日曆資訊（包含 email）
         const response = await gapi.client.calendar.calendarList.list({
-            maxResults: 1
+            maxResults: 10 // 增加數量以確保找到主要日曆
         });
 
-        // 從 Calendar API 獲取主要日曆資訊來取得用戶資訊
+        // 尋找主要日曆來獲取用戶 email
+        let userEmail = '用戶';
+        let userName = '用戶';
+
+        if (response.result.items && response.result.items.length > 0) {
+            // 尋找主要日曆（通常是用戶的 email）
+            const primaryCalendar = response.result.items.find(cal => cal.primary === true);
+            if (primaryCalendar) {
+                userEmail = primaryCalendar.id; // 主要日曆的 ID 就是用戶的 email
+                userName = primaryCalendar.summary || primaryCalendar.id;
+            } else {
+                // 如果沒找到主要日曆，使用第一個日曆
+                const firstCalendar = response.result.items[0];
+                userEmail = firstCalendar.id;
+                userName = firstCalendar.summary || firstCalendar.id;
+            }
+        }
+
         const userInfo = {
-            email: 'user@gmail.com', // 由於新 API 不直接提供 email，使用佔位符
-            name: '用戶',
+            email: userEmail,
+            name: userName,
             accessToken: accessToken
         };
+
+        console.log('👤 獲取到用戶資訊:', {
+            email: userInfo.email,
+            name: userInfo.name,
+            calendarCount: response.result.items ? response.result.items.length : 0
+        });
 
         googleCalendarAuth = userInfo;
 
@@ -1760,8 +1882,8 @@ async function handleAuthSuccess(accessToken) {
 }
 
 // 中斷 Google Calendar 連接（新版本）
-function disconnectGoogleCalendar() {
-    if (confirm('確定要中斷與 Google Calendar 的連接嗎？')) {
+function disconnectGoogleCalendar(skipConfirm = false) {
+    if (skipConfirm || confirm('確定要中斷與 Google Calendar 的連接嗎？')) {
         try {
             // 移除之前同步的 Google Calendar 事件
             events = events.filter(event => !event.isFromGoogleCalendar);
@@ -1814,8 +1936,11 @@ async function syncFromGoogleCalendar() {
             // 測試模式：使用示例資料
             console.log('🧪 使用測試模式的 Google Calendar 資料');
             googleEvents = window.DEMO_GOOGLE_EVENTS || [];
-                } else {
+        } else {
             // 真實模式：從 Google Calendar API 獲取資料
+
+            // 檢查並刷新 token
+            await ensureValidToken();
 
             // 確保 access token 已設置
             if (googleCalendarAuth && googleCalendarAuth.accessToken) {
@@ -1881,8 +2006,34 @@ async function syncFromGoogleCalendar() {
 
     } catch (error) {
         console.error('❌ Google Calendar 同步失敗:', error);
-        updateGoogleCalendarStatus('error', '同步失敗');
-        showNotification('Google Calendar 同步失敗', 'error');
+
+        let errorMessage = 'Google Calendar 同步失敗';
+        let statusMessage = '同步失敗';
+
+        // 根據不同的錯誤類型提供更具體的錯誤訊息
+        if (error.message.includes('沒有保存的授權資訊')) {
+            errorMessage = '請重新連接 Google Calendar';
+            statusMessage = '需要重新連接';
+            // 重置連接狀態
+            disconnectGoogleCalendar(true);
+        } else if (error.message.includes('重新授權失敗')) {
+            errorMessage = '重新授權失敗，請手動重新連接';
+            statusMessage = '授權失敗';
+        } else if (error.status === 401 || (error.result && error.result.error && error.result.error.code === 401)) {
+            errorMessage = 'Google Calendar 授權已過期，請重新連接';
+            statusMessage = '授權過期';
+            // 重置連接狀態
+            disconnectGoogleCalendar(true);
+        } else if (error.status === 403) {
+            errorMessage = 'Google Calendar API 配額不足或權限不夠';
+            statusMessage = '權限不足';
+        } else if (!navigator.onLine) {
+            errorMessage = '網路連線異常，請檢查網路狀態';
+            statusMessage = '網路異常';
+        }
+
+        updateGoogleCalendarStatus('error', statusMessage);
+        showNotification(errorMessage, 'error');
     }
 }
 
@@ -1926,7 +2077,7 @@ function convertGoogleEventToLocal(googleEvent) {
 
     return {
         id: `google_${googleEvent.id}`,
-        title: `📅 ${googleEvent.summary || '無標題'}`,
+        title: googleEvent.summary || '無標題',
         date: localStartDate,
         endDate: localEndDate || null, // 確保 endDate 不是 undefined
         time: time,
