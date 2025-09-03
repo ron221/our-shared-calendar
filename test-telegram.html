@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Telegram 通知測試</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+        }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Telegram 通知功能測試</h1>
+
+        <div class="test-section">
+            <h3>📱 配置狀態</h3>
+            <div id="configStatus" class="status">載入中...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 測試通知</h3>
+            <p>點擊下方按鈕測試不同類型的通知：</p>
+
+            <button onclick="testInvitation()">📩 測試邀請通知</button>
+            <button onclick="testAccepted()">✅ 測試接受通知</button>
+            <button onclick="testRejected()">❌ 測試拒絕通知</button>
+            <button onclick="testReminder()">⏰ 測試提醒通知</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 測試結果</h3>
+            <div id="testResults" class="status">等待測試...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🛠️ 控制台日誌</h3>
+            <button onclick="clearLog()">清除日誌</button>
+            <pre id="consoleLog"></pre>
+        </div>
+    </div>
+
+    <!-- 載入配置文件 -->
+    <script src="telegram-config.js"></script>
+
+    <script>
+        // 模擬一些必要的全域變數和函數
+        let currentUser = 'cat';
+        let telegramConfig = null;
+        let isTelegramEnabled = false;
+
+        // 重定向 console.log 到頁面
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function logToPage(type, ...args) {
+            const logElement = document.getElementById('consoleLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+
+            logElement.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+
+            // 也輸出到真實的控制台
+            if (type === 'log') originalLog(...args);
+            else if (type === 'error') originalError(...args);
+            else if (type === 'warn') originalWarn(...args);
+        }
+
+        console.log = (...args) => logToPage('log', ...args);
+        console.error = (...args) => logToPage('error', ...args);
+        console.warn = (...args) => logToPage('warn', ...args);
+
+        // 模擬通知函數
+        function showNotification(message, type = 'info') {
+            console.log(`通知 (${type}): ${message}`);
+
+            const resultDiv = document.getElementById('testResults');
+            resultDiv.innerHTML += `<div style="margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                <strong>${type.toUpperCase()}:</strong> ${message}
+            </div>`;
+        }
+
+        // 初始化 Telegram 通知
+        function initializeTelegram() {
+            console.log('📱 初始化 Telegram 通知功能...');
+
+            try {
+                // 檢查配置是否載入
+                const config = window.TELEGRAM_CONFIG;
+                if (!config) {
+                    console.warn('⚠️ Telegram 配置未載入');
+                    return;
+                }
+
+                telegramConfig = config;
+
+                // 檢查是否啟用和配置是否完整
+                if (config.enabled && config.botToken !== 'YOUR_BOT_TOKEN_HERE') {
+                    isTelegramEnabled = true;
+                    console.log('✅ Telegram 通知已啟用');
+                } else if (config.testMode) {
+                    telegramConfig = window.TELEGRAM_DEMO_CONFIG || config;
+                    console.log('🧪 Telegram 測試模式啟用');
+                } else {
+                    console.log('⏸️ Telegram 通知未啟用（需要設定 botToken）');
+                }
+
+                // 顯示配置狀態
+                console.log('📋 Telegram 配置狀態:', {
+                    enabled: config.enabled,
+                    testMode: config.testMode,
+                    hasValidToken: config.botToken !== 'YOUR_BOT_TOKEN_HERE',
+                    catChatId: config.users?.cat?.chatId,
+                    mouseChatId: config.users?.mouse?.chatId
+                });
+
+            } catch (error) {
+                console.error('❌ Telegram 初始化失敗:', error);
+            }
+        }
+
+        // 發送 Telegram 通知
+        async function sendTelegramNotification(toUser, messageType, fromUser = null, event = null, extraData = null) {
+            if (!telegramConfig || (!isTelegramEnabled && !telegramConfig.testMode)) {
+                console.log('📱 Telegram 通知未啟用，跳過發送');
+                return false;
+            }
+
+            try {
+                const userConfig = telegramConfig.users[toUser];
+                if (!userConfig) {
+                    console.error('❌ 找不到用戶配置:', toUser);
+                    return false;
+                }
+
+                // 生成訊息內容
+                const messageTemplate = telegramConfig.messages[messageType];
+                if (!messageTemplate) {
+                    console.error('❌ 找不到訊息模板:', messageType);
+                    return false;
+                }
+
+                let messageText;
+                switch (messageType) {
+                    case 'invitation':
+                    case 'accepted':
+                    case 'rejected':
+                        messageText = messageTemplate.template(fromUser, event);
+                        break;
+                    case 'reminder':
+                        messageText = messageTemplate.template(event, extraData);
+                        break;
+                    default:
+                        messageText = '未知通知類型';
+                }
+
+                // 測試模式：只顯示通知，不實際發送
+                if (telegramConfig.testMode || !isTelegramEnabled) {
+                    console.log('🧪 Telegram 測試通知:', {
+                        to: userConfig.name,
+                        chatId: userConfig.chatId,
+                        type: messageType,
+                        message: messageText
+                    });
+
+                    // 顯示測試通知彈窗
+                    showTelegramTestNotification(userConfig.name, messageTemplate.title, messageText);
+                    return true;
+                }
+
+                // 實際發送邏輯（在測試頁面中不實際執行）
+                console.log('📤 實際模式下會發送到 Telegram API');
+                showNotification(`會發送 Telegram 通知給 ${userConfig.name}`, 'success');
+                return true;
+
+            } catch (error) {
+                console.error('❌ Telegram 通知發送錯誤:', error);
+                showNotification('Telegram 通知發送錯誤', 'error');
+                return false;
+            }
+        }
+
+        // 顯示測試模式的通知彈窗
+        function showTelegramTestNotification(toUser, title, message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 15px;
+                z-index: 10000;
+                max-width: 400px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                border: 3px solid #4a90e2;
+            `;
+
+            notification.innerHTML = `
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 18px;">
+                        📱 Telegram 測試通知
+                    </h3>
+                    <p style="margin: 5px 0; opacity: 0.9; font-size: 14px;">
+                        發送給：${toUser}
+                    </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 16px;">${title}</h4>
+                    <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; line-height: 1.4;">${message}</pre>
+                </div>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="this.closest('div').remove()" style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border: 1px solid rgba(255,255,255,0.3);
+                        padding: 10px 20px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    ">
+                        ✅ 我知道了
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // 5秒後自動關閉
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // 初始化函數
+        function initPage() {
+            console.log('🧪 開始測試頁面初始化...');
+
+            try {
+                initializeTelegram();
+                updateConfigStatus();
+            } catch (error) {
+                console.error('初始化錯誤:', error);
+            }
+        }
+
+        // 更新配置狀態顯示
+        function updateConfigStatus() {
+            const statusDiv = document.getElementById('configStatus');
+
+            if (!window.TELEGRAM_CONFIG) {
+                statusDiv.innerHTML = '❌ Telegram 配置未載入';
+                statusDiv.style.background = 'rgba(220, 53, 69, 0.2)';
+                return;
+            }
+
+            const config = window.TELEGRAM_CONFIG;
+            const hasValidToken = config.botToken && config.botToken !== 'YOUR_BOT_TOKEN_HERE';
+            const hasValidUsers = config.users && config.users.cat && config.users.mouse;
+
+            let statusHtml = '<div>';
+            statusHtml += `<div>🔧 配置載入: ✅</div>`;
+            statusHtml += `<div>🤖 Bot Token: ${hasValidToken ? '✅ 已設定' : '❌ 未設定'}</div>`;
+            statusHtml += `<div>👥 用戶配置: ${hasValidUsers ? '✅ 已設定' : '❌ 未設定'}</div>`;
+            statusHtml += `<div>🚀 啟用狀態: ${config.enabled ? '✅ 已啟用' : '⏸️ 未啟用'}</div>`;
+            statusHtml += `<div>🧪 測試模式: ${config.testMode ? '✅ 啟用' : '❌ 關閉'}</div>`;
+            statusHtml += '</div>';
+
+            statusDiv.innerHTML = statusHtml;
+
+            if (config.enabled || config.testMode) {
+                statusDiv.style.background = 'rgba(40, 167, 69, 0.2)';
+            } else {
+                statusDiv.style.background = 'rgba(255, 193, 7, 0.2)';
+            }
+        }
+
+        // 測試函數們
+        function testInvitation() {
+            console.log('🧪 測試邀請通知...');
+
+            const mockEvent = {
+                title: '一起看電影',
+                date: '2024-12-20',
+                time: '19:00',
+                description: '看最新上映的浪漫電影 🎬'
+            };
+
+            sendTelegramNotification('mouse', 'invitation', 'cat', mockEvent);
+        }
+
+        function testAccepted() {
+            console.log('🧪 測試接受通知...');
+
+            const mockEvent = {
+                title: '公園散步',
+                date: '2024-12-21',
+                time: '10:00',
+                description: '在公園裡享受美好時光 🌳'
+            };
+
+            sendTelegramNotification('cat', 'accepted', 'mouse', mockEvent);
+        }
+
+        function testRejected() {
+            console.log('🧪 測試拒絕通知...');
+
+            const mockEvent = {
+                title: '爬山活動',
+                date: '2024-12-22',
+                time: '06:00',
+                description: '早起爬山看日出 🌅'
+            };
+
+            sendTelegramNotification('cat', 'rejected', 'mouse', mockEvent);
+        }
+
+        function testReminder() {
+            console.log('🧪 測試提醒通知...');
+
+            const mockEvent = {
+                title: '約會晚餐',
+                date: '2024-12-23',
+                time: '18:30',
+                description: '在那家新開的餐廳 🍽️'
+            };
+
+            sendTelegramNotification('mouse', 'reminder', null, mockEvent, '1小時');
+        }
+
+        function clearLog() {
+            document.getElementById('consoleLog').textContent = '';
+            document.getElementById('testResults').innerHTML = '日誌已清除...';
+        }
+
+        // 獲取對方用戶
+        function getOtherUser(user) {
+            return user === 'cat' ? 'mouse' : 'cat';
+        }
+
+        // 頁面載入後初始化
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

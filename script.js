@@ -130,6 +130,10 @@ let tokenClient = null;
 
 // Google Calendar API 配置將從 google-config.js 載入
 
+// Telegram 通知相關變數
+let isTelegramEnabled = false;
+let telegramConfig = null;
+
 // 月份名稱
 const monthNames = [
     '一月', '二月', '三月', '四月', '五月', '六月',
@@ -153,6 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeDarkMode();
         initializeFirebase();
         initializeGoogleCalendar();
+        initializeTelegram();
         setupEventListeners();
         console.log('✅ 日曆初始化完成！');
     } catch (error) {
@@ -1227,6 +1232,21 @@ function handleFormSubmit(e) {
         // 創建新事件
         eventData.id = generateId();
         events.push(eventData);
+
+        // 如果是邀請類型，發送 Telegram 通知給對方
+        if (eventData.type === 'invitation') {
+            const targetUser = getOtherUser(currentUser);
+            console.log('📩 發送邀請通知:', {
+                from: currentUser,
+                to: targetUser,
+                event: eventData.title
+            });
+
+            // 異步發送通知，不阻塞 UI
+            setTimeout(() => {
+                sendTelegramNotification(targetUser, 'invitation', currentUser, eventData);
+            }, 500);
+        }
     }
 
     saveEvents();
@@ -1265,6 +1285,9 @@ function deleteEvent() {
 function acceptInvitation(eventId) {
     const eventIndex = events.findIndex(e => e.id === eventId);
     if (eventIndex !== -1) {
+        const event = events[eventIndex];
+        const originalOwner = event.owner;
+
         events[eventIndex].status = 'confirmed';
         events[eventIndex].type = 'shared';
         saveEvents();
@@ -1275,6 +1298,17 @@ function acceptInvitation(eventId) {
         }
 
         showNotification('已確認參加行程！', 'success');
+
+        // 發送接受通知給邀請者
+        console.log('✅ 發送接受通知:', {
+            from: currentUser,
+            to: originalOwner,
+            event: event.title
+        });
+
+        setTimeout(() => {
+            sendTelegramNotification(originalOwner, 'accepted', currentUser, event);
+        }, 500);
     }
 }
 
@@ -1345,6 +1379,10 @@ function unshareGoogleEvent(googleEvent) {
 // 拒絕邀請
 function rejectInvitation(eventId) {
     if (confirm('確定要拒絕這個邀請嗎？')) {
+        const eventIndex = events.findIndex(e => e.id === eventId);
+        const event = eventIndex !== -1 ? events[eventIndex] : null;
+        const originalOwner = event ? event.owner : null;
+
         events = events.filter(e => e.id !== eventId);
         saveEvents();
         renderCalendar();
@@ -1354,6 +1392,19 @@ function rejectInvitation(eventId) {
         }
 
         showNotification('已拒絕邀請', 'info');
+
+        // 發送拒絕通知給邀請者
+        if (event && originalOwner) {
+            console.log('❌ 發送拒絕通知:', {
+                from: currentUser,
+                to: originalOwner,
+                event: event.title
+            });
+
+            setTimeout(() => {
+                sendTelegramNotification(originalOwner, 'rejected', currentUser, event);
+            }, 500);
+        }
     }
 }
 
@@ -2401,4 +2452,220 @@ function showGoogleVerificationSolution() {
     `;
 
     document.body.insertAdjacentHTML('beforeend', solutionHtml);
+}
+
+// ==================== Telegram 通知整合 ====================
+
+// 初始化 Telegram 通知
+function initializeTelegram() {
+    console.log('📱 初始化 Telegram 通知功能...');
+
+    try {
+        // 檢查配置是否載入
+        const config = window.TELEGRAM_CONFIG;
+        if (!config) {
+            console.warn('⚠️ Telegram 配置未載入');
+            return;
+        }
+
+        telegramConfig = config;
+
+        // 檢查是否啟用和配置是否完整
+        if (config.enabled && config.botToken !== 'YOUR_BOT_TOKEN_HERE') {
+            isTelegramEnabled = true;
+            console.log('✅ Telegram 通知已啟用');
+        } else if (config.testMode) {
+            telegramConfig = window.TELEGRAM_DEMO_CONFIG || config;
+            console.log('🧪 Telegram 測試模式啟用');
+        } else {
+            console.log('⏸️ Telegram 通知未啟用（需要設定 botToken）');
+        }
+
+        // 顯示配置狀態
+        console.log('📋 Telegram 配置狀態:', {
+            enabled: config.enabled,
+            testMode: config.testMode,
+            hasValidToken: config.botToken !== 'YOUR_BOT_TOKEN_HERE',
+            catChatId: config.users?.cat?.chatId,
+            mouseChatId: config.users?.mouse?.chatId
+        });
+
+    } catch (error) {
+        console.error('❌ Telegram 初始化失敗:', error);
+    }
+}
+
+// 發送 Telegram 通知
+async function sendTelegramNotification(toUser, messageType, fromUser = null, event = null, extraData = null) {
+    if (!telegramConfig || (!isTelegramEnabled && !telegramConfig.testMode)) {
+        console.log('📱 Telegram 通知未啟用，跳過發送');
+        return false;
+    }
+
+    try {
+        const userConfig = telegramConfig.users[toUser];
+        if (!userConfig) {
+            console.error('❌ 找不到用戶配置:', toUser);
+            return false;
+        }
+
+        // 生成訊息內容
+        const messageTemplate = telegramConfig.messages[messageType];
+        if (!messageTemplate) {
+            console.error('❌ 找不到訊息模板:', messageType);
+            return false;
+        }
+
+        let messageText;
+        switch (messageType) {
+            case 'invitation':
+            case 'accepted':
+            case 'rejected':
+                messageText = messageTemplate.template(fromUser, event);
+                break;
+            case 'reminder':
+                messageText = messageTemplate.template(event, extraData);
+                break;
+            default:
+                messageText = '未知通知類型';
+        }
+
+        // 測試模式：只顯示通知，不實際發送
+        if (telegramConfig.testMode || !isTelegramEnabled) {
+            console.log('🧪 Telegram 測試通知:', {
+                to: userConfig.name,
+                chatId: userConfig.chatId,
+                type: messageType,
+                message: messageText
+            });
+
+            // 顯示測試通知彈窗
+            showTelegramTestNotification(userConfig.name, messageTemplate.title, messageText);
+            return true;
+        }
+
+        // 實際發送 Telegram 訊息
+        const response = await fetch(`https://api.telegram.org/bot${telegramConfig.botToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat_id: userConfig.chatId,
+                text: messageText,
+                parse_mode: 'Markdown'
+            })
+        });
+
+        if (response.ok) {
+            console.log('✅ Telegram 通知發送成功:', {
+                to: userConfig.name,
+                type: messageType
+            });
+            showNotification(`已發送 Telegram 通知給 ${userConfig.name}`, 'success');
+            return true;
+        } else {
+            const errorData = await response.json();
+            console.error('❌ Telegram 發送失敗:', errorData);
+            showNotification('Telegram 通知發送失敗', 'error');
+            return false;
+        }
+
+    } catch (error) {
+        console.error('❌ Telegram 通知發送錯誤:', error);
+        showNotification('Telegram 通知發送錯誤', 'error');
+        return false;
+    }
+}
+
+// 顯示測試模式的通知彈窗
+function showTelegramTestNotification(toUser, title, message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        z-index: 10000;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border: 3px solid #4a90e2;
+        animation: telegramPop 0.5s ease;
+    `;
+
+    notification.innerHTML = `
+        <div style="text-align: center; margin-bottom: 15px;">
+            <h3 style="margin: 0; font-size: 18px;">
+                📱 Telegram 測試通知
+            </h3>
+            <p style="margin: 5px 0; opacity: 0.9; font-size: 14px;">
+                發送給：${toUser}
+            </p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+            <h4 style="margin: 0 0 10px 0; font-size: 16px;">${title}</h4>
+            <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; line-height: 1.4;">${message}</pre>
+        </div>
+
+        <div style="text-align: center; margin-top: 15px;">
+            <button onclick="this.closest('div').remove()" style="
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border: 1px solid rgba(255,255,255,0.3);
+                padding: 10px 20px;
+                border-radius: 25px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.background='rgba(255,255,255,0.3)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                ✅ 我知道了
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // 添加動畫 CSS
+    if (!document.getElementById('telegramAnimationStyle')) {
+        const style = document.createElement('style');
+        style.id = 'telegramAnimationStyle';
+        style.textContent = `
+            @keyframes telegramPop {
+                0% {
+                    transform: translate(-50%, -50%) scale(0.8);
+                    opacity: 0;
+                }
+                50% {
+                    transform: translate(-50%, -50%) scale(1.05);
+                }
+                100% {
+                    transform: translate(-50%, -50%) scale(1);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // 5秒後自動關閉
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'telegramPop 0.3s ease reverse';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }
+    }, 5000);
+}
+
+// 獲取對方用戶
+function getOtherUser(currentUser) {
+    return currentUser === 'cat' ? 'mouse' : 'cat';
 }

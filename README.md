@@ -22,6 +22,12 @@
 - **邀請行程** (📩)：向對方發出的邀請，等待確認
 - **待確認** (⏳)：閃爍提示，需要對方回應
 
+### 📱 Telegram 通知
+- **即時邀請通知**：發送邀請時自動通知對方 Telegram
+- **回應通知**：接受或拒絕邀請時通知邀請者
+- **自訂訊息**：可自訂通知訊息內容和格式
+- **測試模式**：支援測試模式，無需真實設定即可體驗功能
+
 ## 🚀 使用方法
 
 ### 基本操作
@@ -84,6 +90,25 @@
 1. 在瀏覽器中打開 `index.html`
 2. 選擇您的身份（貓咪或小老鼠）
 3. 開始規劃美好的共同時光！
+
+### 📱 設定 Telegram 通知
+
+如果想要啟用 Telegram 通知功能，請參考 [Telegram 設定指南](TELEGRAM_SETUP.md)：
+
+1. 創建 Telegram Bot
+2. 獲取 Chat ID
+3. 修改 `telegram-config.js` 配置文件
+4. 享受即時通知功能！
+
+## 📁 項目文件
+
+- `index.html` - 主要網頁文件
+- `script.js` - 核心 JavaScript 功能
+- `styles.css` - 樣式設定
+- `telegram-config.js` - Telegram 通知配置
+- `google-config.js` - Google Calendar 整合配置
+- `TELEGRAM_SETUP.md` - Telegram 設定說明
+- `Google-Calendar-Setup.md` - Google Calendar 設定說明
 
 ---
 
