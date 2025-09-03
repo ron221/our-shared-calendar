@@ -736,7 +736,15 @@ function showEventDetails(event) {
     document.querySelector('.btn-primary').style.display = 'none';
     document.getElementById('cancelBtn').textContent = '關閉';
 
+    // 防止背景滾動
+    document.body.style.overflow = 'hidden';
     modal.style.display = 'block';
+
+    // 確保彈窗滾動到頂部
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.scrollTop = 0;
+    }
 
     // 當關閉時恢復表單狀態
     const originalCloseModal = closeModal;
@@ -935,13 +943,24 @@ function openEventModal(event = null) {
         document.getElementById('eventType').value = 'personal';
     }
 
+    // 防止背景滾動
+    document.body.style.overflow = 'hidden';
     eventModal.style.display = 'block';
+
+    // 確保彈窗滾動到頂部
+    const modalContent = eventModal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.scrollTop = 0;
+    }
 }
 
 // 關閉彈窗
 function closeModal() {
     eventModal.style.display = 'none';
     editingEventId = null;
+
+    // 恢復背景滾動
+    document.body.style.overflow = '';
 }
 
 // 關閉側邊欄
