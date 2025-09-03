@@ -39,14 +39,13 @@ window.TELEGRAM_CONFIG = {
             template: (fromUser, event) => `
 ✉️ 你收到一個新的行程邀請！
 
-📝 **行程名稱：** ${event.title}
+📌 **行程名稱：** ${event.title}
 📆 **日期：** ${event.date}${event.endDate ? ` - ${event.endDate}` : ''}
 ⏰ **時間：** ${event.time || '全天'}
 📝 **描述：** ${event.description || '無'}
 👤 **邀請人：** ${fromUser === 'cat' ? '🐱 貓咪' : '🐭 老鼠'}
 
 請到共享日曆確認或拒絕此邀請 💕
-https://ron221.github.io/our-shared-calendar/
             `
         },
         accepted: {
@@ -54,7 +53,7 @@ https://ron221.github.io/our-shared-calendar/
             template: (fromUser, event) => `
 🎊 你的邀請已被接受！
 
-📝 **行程名稱：** ${event.title}
+📌 **行程名稱：** ${event.title}
 📆 **日期：** ${event.date}${event.endDate ? ` - ${event.endDate}` : ''}
 ⏰ **時間：** ${event.time || '全天'}
 👤 **接受人：** ${fromUser === 'cat' ? '🐱 貓咪' : '🐭 老鼠'}
