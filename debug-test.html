@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Variables Debug Test</title>
+    <link rel="stylesheet" href="styles.css?v=5">
+    <style>
+        .debug-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .debug-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        .test-event {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b6b;
+        }
+        .variable-values {
+            font-family: monospace;
+            background: var(--bg-card);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>CSS Variables Debug Test</h1>
+
+        <button onclick="toggleMode()" style="padding: 10px 20px; margin: 10px 0; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Toggle Light/Dark Mode
+        </button>
+
+        <div class="variable-values">
+            <h3>Current CSS Variable Values:</h3>
+            <div id="variableDisplay"></div>
+        </div>
+
+        <div class="debug-item">
+            <strong>Regular text with var(--text-primary):</strong> This should be visible in both modes
+        </div>
+
+        <div class="test-event">
+            Test Event with !important styles (should work like weekly view)
+        </div>
+
+        <div class="calendar-wrapper week-view" style="margin-top: 20px;">
+            <h3>Weekly View Test:</h3>
+            <div class="calendar-day" style="min-height: auto; margin: 10px 0;">
+                <div class="day-number">測試</div>
+                <div class="day-events">
+                    <div class="day-event-item cat-event">🐱 測試行程文字</div>
+                    <div class="day-event-item mouse-event">🐭 另一個測試</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMode() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? null : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme || '');
+            updateVariableDisplay();
+            console.log('Mode:', newTheme || 'light');
+        }
+
+        function updateVariableDisplay() {
+            const computedStyle = getComputedStyle(document.documentElement);
+            const variables = [
+                '--bg-primary',
+                '--bg-secondary',
+                '--bg-card',
+                '--text-primary',
+                '--text-secondary',
+                '--text-light',
+                '--border-color',
+                '--shadow'
+            ];
+
+            let html = '';
+            variables.forEach(varName => {
+                const value = computedStyle.getPropertyValue(varName).trim();
+                html += `<div><strong>${varName}:</strong> ${value}</div>`;
+            });
+
+            document.getElementById('variableDisplay').innerHTML = html;
+        }
+
+        // Initialize
+        updateVariableDisplay();
+    </script>
+</body>
+</html>

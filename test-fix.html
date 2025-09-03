@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly View Text Fix Test</title>
+    <link rel="stylesheet" href="styles.css?v=3">
+    <style>
+        body { padding: 20px; }
+        .test-controls { margin-bottom: 20px; }
+        .test-button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .calendar-wrapper {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>週視圖文字顯示修復測試</h1>
+
+        <div class="test-controls">
+            <button class="test-button" onclick="toggleTheme()">切換深色/淺色模式</button>
+            <button class="test-button" onclick="switchToWeekView()">切換到週視圖</button>
+        </div>
+
+        <div class="view-selector">
+            <button id="weekView" class="view-btn active" data-view="week">
+                週視圖
+            </button>
+        </div>
+
+        <div class="calendar-wrapper week-view">
+            <div class="calendar-grid" style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="calendar-day">
+                    <div class="day-number">一<br/>2</div>
+                    <div class="day-events">
+                        <div class="day-event-item cat-event">🐱 19:00 物理治療</div>
+                        <div class="day-event-item mouse-event">🐭 10:00 會議</div>
+                        <div class="day-event-item shared-event">🤝 14:00 共同行程</div>
+                    </div>
+                </div>
+
+                <div class="calendar-day">
+                    <div class="day-number">二<br/>3</div>
+                    <div class="day-events">
+                        <div class="day-event-item pending-event">🐱📩 15:00 邀請確認</div>
+                        <div class="day-event-item multi-day-event">📅 多日行程 (2/3-2/5)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? null : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme || '');
+            console.log('主題切換到:', newTheme || 'light');
+        }
+
+        function switchToWeekView() {
+            document.querySelector('.calendar-wrapper').classList.add('week-view');
+            console.log('切換到週視圖');
+        }
+
+        // 初始化週視圖
+        switchToWeekView();
+    </script>
+</body>
+</html>

@@ -307,7 +307,7 @@ body {
 #currentPeriod {
     font-size: 1.8em;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
 }
 
 /* 日曆區域 */
@@ -435,10 +435,10 @@ body {
         padding: 8px 12px;
         margin-bottom: 0;
         border-radius: 8px;
-        background: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        background: var(--bg-secondary) !important;
+        box-shadow: 0 2px 8px var(--shadow);
         border-left-width: 4px;
-        color: #333;
+        color: var(--text-primary) !important;
         font-weight: 600;
     }
 
@@ -452,28 +452,28 @@ body {
     /* 週視圖中不同類型行程的顏色優化 */
     .calendar-wrapper.week-view .day-event-item.cat-event {
         border-left-color: #ff6b6b;
-        background: linear-gradient(90deg, rgba(255, 107, 107, 0.08) 0%, white 20%);
+        background: linear-gradient(90deg, rgba(255, 107, 107, 0.08) 0%, var(--bg-secondary) 20%);
     }
 
     .calendar-wrapper.week-view .day-event-item.mouse-event {
         border-left-color: #4ecdc4;
-        background: linear-gradient(90deg, rgba(78, 205, 196, 0.08) 0%, white 20%);
+        background: linear-gradient(90deg, rgba(78, 205, 196, 0.08) 0%, var(--bg-secondary) 20%);
     }
 
     .calendar-wrapper.week-view .day-event-item.shared-event {
         border-left-color: #ffa500;
-        background: linear-gradient(90deg, rgba(255, 165, 0, 0.08) 0%, white 20%);
+        background: linear-gradient(90deg, rgba(255, 165, 0, 0.08) 0%, var(--bg-secondary) 20%);
     }
 
     .calendar-wrapper.week-view .day-event-item.pending-event {
         border-left-color: #9b59b6;
-        background: linear-gradient(90deg, rgba(155, 89, 182, 0.08) 0%, white 20%);
+        background: linear-gradient(90deg, rgba(155, 89, 182, 0.08) 0%, var(--bg-secondary) 20%);
         animation: pulse 2s infinite;
     }
 
     .calendar-wrapper.week-view .day-event-item.multi-day-event {
         border-left-color: #f39c12;
-        background: linear-gradient(90deg, rgba(243, 156, 18, 0.08) 0%, white 20%);
+        background: linear-gradient(90deg, rgba(243, 156, 18, 0.08) 0%, var(--bg-secondary) 20%);
         font-weight: 700;
     }
 }
@@ -762,7 +762,7 @@ body {
 }
 
 .event-title-short {
-    color: #333;
+    color: var(--text-primary);
     margin-top: 1px;
 }
 
@@ -1070,8 +1070,8 @@ body {
     top: 0;
     width: 350px;
     height: 100vh;
-    background: white;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    background: var(--bg-secondary);
+    box-shadow: -5px 0 15px var(--shadow);
     transition: right 0.3s ease;
     z-index: 999;
     overflow-y: auto;
