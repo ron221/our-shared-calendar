@@ -368,7 +368,22 @@ function syncToFirebase() {
 
     updateSyncStatus('syncing', '同步中...');
 
-    database.ref('events').set(events)
+    // 清理事件資料，確保沒有 undefined 值
+    const cleanedEvents = events.map(event => ({
+        ...event,
+        endDate: event.endDate === undefined ? null : event.endDate
+    }));
+
+    // 檢查是否還有 undefined 值
+    const hasUndefinedValues = cleanedEvents.some(event =>
+        Object.values(event).some(value => value === undefined)
+    );
+
+    if (hasUndefinedValues) {
+        console.error('❌ 事件資料仍包含 undefined 值:', cleanedEvents);
+    }
+
+    database.ref('events').set(cleanedEvents)
         .then(() => {
             updateSyncStatus('connected', '雲端已連線');
             console.log('☁️ 資料已同步到雲端');
@@ -1271,6 +1286,15 @@ function isSameDate(date1, date2) {
 }
 
 function saveEvents() {
+    // 清理事件資料，確保沒有 undefined 值
+    const cleanedEvents = events.map(event => ({
+        ...event,
+        endDate: event.endDate === undefined ? null : event.endDate
+    }));
+
+    // 更新全域事件陣列
+    events = cleanedEvents;
+
     // 本地備份
     localStorage.setItem('calendarEvents', JSON.stringify(events));
 
@@ -1826,6 +1850,12 @@ async function syncFromGoogleCalendar() {
         // 轉換 Google Calendar 事件為本地格式
         const convertedEvents = googleEvents.map(convertGoogleEventToLocal);
 
+        // 檢查是否有 undefined endDate 值
+        const eventsWithUndefinedEndDate = convertedEvents.filter(event => event.endDate === undefined);
+        if (eventsWithUndefinedEndDate.length > 0) {
+            console.warn('⚠️ 發現有 undefined endDate 的事件:', eventsWithUndefinedEndDate);
+        }
+
         // 移除之前同步的 Google Calendar 事件
         events = events.filter(event => !event.isFromGoogleCalendar);
 
@@ -1898,7 +1928,7 @@ function convertGoogleEventToLocal(googleEvent) {
         id: `google_${googleEvent.id}`,
         title: `📅 ${googleEvent.summary || '無標題'}`,
         date: localStartDate,
-        endDate: localEndDate,
+        endDate: localEndDate || null, // 確保 endDate 不是 undefined
         time: time,
         description: googleEvent.description || '從 Google Calendar 同步',
         type: 'personal',
