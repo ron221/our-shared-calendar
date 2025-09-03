@@ -1626,7 +1626,7 @@ async function connectGoogleCalendar() {
             return;
         }
 
-        // 檢查 Google API 是否已準備就緒
+                // 檢查 Google API 是否已準備就緒
         if (!isGoogleApiReady) {
             throw new Error('Google API 尚未初始化完成，請稍後再試');
         }
@@ -1636,7 +1636,16 @@ async function connectGoogleCalendar() {
             throw new Error('Google Auth 實例未找到，請重新載入頁面');
         }
 
-        const user = await authInstance.signIn();
+        // 開發模式：使用更寬鬆的授權選項
+        let signInOptions = {};
+        if (window.GOOGLE_CALENDAR_DEV_MODE) {
+            console.log('🔧 使用開發模式登入');
+            signInOptions = {
+                prompt: 'select_account'
+            };
+        }
+
+        const user = await authInstance.signIn(signInOptions);
         const profile = user.getBasicProfile();
 
         googleCalendarAuth = {
@@ -1663,17 +1672,32 @@ async function connectGoogleCalendar() {
         console.error('❌ Google Calendar 連接失敗:', error);
         updateGoogleCalendarStatus('error', '連接失敗');
 
-        // 更詳細的錯誤訊息
+                // 更詳細的錯誤訊息
         let errorMessage = 'Google Calendar 連接失敗';
+        let showSolution = false;
+
         if (error.message.includes('尚未初始化')) {
             errorMessage = '正在初始化中，請稍後再試';
         } else if (error.message.includes('popup_blocked')) {
             errorMessage = '彈窗被封鎖，請允許彈窗後重試';
         } else if (error.message.includes('access_denied')) {
             errorMessage = '用戶拒絕授權';
+        } else if (error.message.includes('未完成') || error.message.includes('驗證程序') ||
+                   error.message.includes('blocked') || error.message.includes('unverified')) {
+            errorMessage = 'Google 應用程式需要驗證';
+            showSolution = true;
+        } else if (error.error && error.error.includes('access_blocked')) {
+            errorMessage = 'Google 應用程式需要驗證';
+            showSolution = true;
         }
 
         showNotification(errorMessage, 'error');
+
+        if (showSolution) {
+            setTimeout(() => {
+                showGoogleVerificationSolution();
+            }, 1000);
+        }
     }
 }
 
@@ -1882,4 +1906,75 @@ function enableGoogleCalendarButton(enabled) {
             connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 初始化中...';
         }
     }
+}
+
+// 顯示 Google 驗證問題的解決方案
+function showGoogleVerificationSolution() {
+    const solutionHtml = `
+        <div style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 500px;
+            z-index: 10000;
+            border: 3px solid #4285f4;
+        ">
+            <h3 style="color: #4285f4; margin-top: 0;">🔐 Google 驗證問題解決方案</h3>
+
+            <div style="margin: 15px 0;">
+                <strong>方案1：設為內部應用程式（推薦）</strong>
+                <ol style="margin: 10px 0; padding-left: 20px;">
+                    <li>前往 <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                    <li>選擇你的專案</li>
+                    <li>前往「API 和服務」→「OAuth 同意畫面」</li>
+                    <li>將「用戶類型」改為「<strong>內部</strong>」</li>
+                    <li>儲存設定</li>
+                </ol>
+            </div>
+
+            <div style="margin: 15px 0;">
+                <strong>方案2：添加測試用戶</strong>
+                <ol style="margin: 10px 0; padding-left: 20px;">
+                    <li>保持「外部」用戶類型</li>
+                    <li>在「測試用戶」部分添加你的 Google 帳戶</li>
+                    <li>添加所有需要測試的用戶 email</li>
+                </ol>
+            </div>
+
+            <div style="margin: 15px 0;">
+                <strong>方案3：暫時使用測試模式</strong>
+                <p style="margin: 5px 0;">修改 google-config.js：</p>
+                <code style="background: #f5f5f5; padding: 5px; display: block;">
+                    GOOGLE_CALENDAR_DEMO_MODE = true
+                </code>
+            </div>
+
+            <button onclick="this.parentElement.remove()" style="
+                background: #4285f4;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-top: 15px;
+            ">我知道了</button>
+        </div>
+
+        <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+        " onclick="this.nextElementSibling.remove(); this.remove();"></div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', solutionHtml);
 }
