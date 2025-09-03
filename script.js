@@ -107,6 +107,13 @@ let draggedEvent = null;
 let draggedElement = null;
 let isDragging = false;
 
+// 觸控滑動相關變數
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let isSwiping = false;
+
 // Firebase 相關變數
 let database = null;
 let isFirebaseEnabled = false;
@@ -190,8 +197,11 @@ function setupEventListeners() {
     // 深色模式切換按鈕
     document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
 
-            // 側邊欄控制
+    // 側邊欄控制
     document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+
+    // 設置觸控滑動手勢
+    setupSwipeGestures();
 
     // 點擊彈窗外部關閉
     window.addEventListener('click', (e) => {
@@ -1283,3 +1293,118 @@ document.addEventListener('keydown', function(e) {
         switchView('week');
     }
 });
+
+// 設置觸控滑動手勢
+function setupSwipeGestures() {
+    const calendarWrapper = document.querySelector('.calendar-wrapper');
+
+    if (!calendarWrapper) return;
+
+    // 觸控開始
+    calendarWrapper.addEventListener('touchstart', handleTouchStart, { passive: true });
+
+    // 觸控移動
+    calendarWrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    // 觸控結束
+    calendarWrapper.addEventListener('touchend', handleTouchEnd, { passive: true });
+}
+
+// 處理觸控開始
+function handleTouchStart(e) {
+    // 只在週視圖模式下啟用滑動
+    if (currentView !== 'week') return;
+
+    // 如果正在拖拽事件或在彈窗中，不處理滑動
+    if (isDragging || eventModal.style.display === 'block' || eventSidebar.classList.contains('open')) {
+        return;
+    }
+
+    const firstTouch = e.touches[0];
+    touchStartX = firstTouch.clientX;
+    touchStartY = firstTouch.clientY;
+    isSwiping = false;
+
+    console.log('👆 觸控開始:', { x: touchStartX, y: touchStartY });
+}
+
+// 處理觸控移動
+function handleTouchMove(e) {
+    if (currentView !== 'week' || isDragging || eventModal.style.display === 'block' || eventSidebar.classList.contains('open')) {
+        return;
+    }
+
+    if (!touchStartX || !touchStartY) {
+        return;
+    }
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+
+    // 檢查是否為水平滑動（水平移動距離大於垂直移動距離）
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+        isSwiping = true;
+        // 防止頁面滾動
+        e.preventDefault();
+    }
+}
+
+// 處理觸控結束
+function handleTouchEnd(e) {
+    if (currentView !== 'week' || !isSwiping || isDragging || eventModal.style.display === 'block' || eventSidebar.classList.contains('open')) {
+        return;
+    }
+
+    const changedTouch = e.changedTouches[0];
+    touchEndX = changedTouch.clientX;
+    touchEndY = changedTouch.clientY;
+
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // 檢查滑動距離和方向
+    const minSwipeDistance = 50;
+    const maxVerticalDistance = 100;
+
+    // 確保是水平滑動且距離足夠
+    if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaY) < maxVerticalDistance) {
+        if (deltaX > 0) {
+            // 向右滑動 - 切換到上一週
+            console.log('👈 向右滑動，切換到上一週');
+            currentDate.setDate(currentDate.getDate() - 7);
+            renderCalendar();
+
+            // 添加視覺回饋
+            showSwipeFeedback('prev');
+        } else {
+            // 向左滑動 - 切換到下一週
+            console.log('👉 向左滑動，切換到下一週');
+            currentDate.setDate(currentDate.getDate() + 7);
+            renderCalendar();
+
+            // 添加視覺回饋
+            showSwipeFeedback('next');
+        }
+    }
+
+    // 重置觸控變數
+    touchStartX = 0;
+    touchStartY = 0;
+    touchEndX = 0;
+    touchEndY = 0;
+    isSwiping = false;
+}
+
+// 顯示滑動回饋動畫
+function showSwipeFeedback(direction) {
+    const calendarWrapper = document.querySelector('.calendar-wrapper');
+
+    // 添加滑動動畫類
+    calendarWrapper.classList.add(`swipe-${direction}`);
+
+    // 動畫結束後移除類
+    setTimeout(() => {
+        calendarWrapper.classList.remove(`swipe-${direction}`);
+    }, 300);
+}

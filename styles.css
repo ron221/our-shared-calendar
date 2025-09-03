@@ -266,6 +266,23 @@ body {
 }
 
 /* 週視圖樣式 */
+.calendar-wrapper.week-view {
+    position: relative;
+}
+
+.calendar-wrapper.week-view::before {
+    content: '← 滑動切換週 →';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7em;
+    color: var(--text-light);
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1;
+}
+
 .calendar-wrapper.week-view .calendar-day {
     min-height: 150px;
     max-height: 150px;
@@ -283,6 +300,10 @@ body {
 
 /* 週視圖手機優化 - 垂直佈局 */
 @media (max-width: 768px) {
+    .calendar-wrapper.week-view::before {
+        display: none; /* 手機版隱藏滑動提示 */
+    }
+
     .calendar-wrapper.week-view .weekdays {
         display: none; /* 隱藏星期標題，因為每個日期方格會顯示完整日期 */
     }
@@ -1365,6 +1386,39 @@ body {
     100% {
         opacity: 1;
     }
+}
+
+/* 滑動手勢動畫 */
+@keyframes swipeLeft {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-20px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes swipeRight {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(20px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.calendar-wrapper.swipe-prev {
+    animation: swipeRight 0.3s ease;
+}
+
+.calendar-wrapper.swipe-next {
+    animation: swipeLeft 0.3s ease;
 }
 
 /* 確認/拒絕按鈕 */
