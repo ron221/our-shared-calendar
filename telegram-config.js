@@ -27,10 +27,10 @@ window.TELEGRAM_CONFIG = {
     },
 
     // 是否啟用 Telegram 通知
-    enabled: false, // 設為 true 啟用，設為 false 使用測試模式
+    enabled: true, // 設為 true 啟用，設為 false 使用測試模式
 
     // 測試模式設定
-    testMode: true, // 在未設定真實 Token 時顯示測試訊息
+    testMode: false, // 在未設定真實 Token 時顯示測試訊息
 
     // 通知訊息模板
     messages: {
