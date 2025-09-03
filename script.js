@@ -69,140 +69,12 @@ function initializeTaiwanHolidays() {
     taiwanHolidays = { ...holidays2024, ...holidays2025 };
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 檢查是否為台灣國定假日
 function getTaiwanHoliday(date) {
     const dateStr = formatDate(date);
     return taiwanHolidays[dateStr] || null;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 深色模式切換功能
 function toggleDarkMode() {
     isDarkMode = !isDarkMode;
@@ -220,70 +92,6 @@ function toggleDarkMode() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 初始化深色模式設定
 function initializeDarkMode() {
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -294,84 +102,10 @@ function initializeDarkMode() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 拖拽相關變數
 let draggedEvent = null;
 let draggedElement = null;
 let isDragging = false;
-
-// 滑動相關變數
-let touchStartX = 0;
-let touchEndX = 0;
-let isSwipeGesture = false;
-
-// 滑動相關變數
-let touchStartX = 0;
-let touchEndX = 0;
-let isSwipeGesture = false;
 
 // Firebase 相關變數
 let database = null;
@@ -427,15 +161,6 @@ function setupEventListeners() {
             currentDate.setDate(currentDate.getDate() - 7);
         }
         renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
     });
 
     document.getElementById('nextPeriod').addEventListener('click', () => {
@@ -445,15 +170,6 @@ function setupEventListeners() {
             currentDate.setDate(currentDate.getDate() + 7);
         }
         renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
     });
 
     // 彈窗控制
@@ -485,70 +201,6 @@ function setupEventListeners() {
     });
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 初始化 Firebase
 function initializeFirebase() {
     try {
@@ -569,70 +221,6 @@ function initializeFirebase() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 回退到本地模式
 function fallbackToLocalMode() {
     isFirebaseEnabled = false;
@@ -645,70 +233,6 @@ function fallbackToLocalMode() {
     console.log('📱 使用本地模式，載入', events.length, '個本地行程');
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 初始化示例事件（保留供手動測試使用）
 // 如需要測試資料，可在 Console 中執行：initializeSampleEvents()
 function initializeSampleEvents() {
@@ -777,70 +301,6 @@ function initializeSampleEvents() {
     console.log('🎭 已重新載入示例資料');
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 設置 Firebase 監聽器
 function setupFirebaseListeners() {
     if (!database) return;
@@ -853,29 +313,11 @@ function setupFirebaseListeners() {
         if (data && Array.isArray(data)) {
             events = data;
             renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
             console.log('🔄 從雲端同步資料:', events.length, '個行程');
         } else {
             // 如果雲端沒有資料，設為空陣列
             events = [];
             renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
             console.log('📋 雲端資料為空，顯示空日曆');
         }
     });
@@ -890,70 +332,6 @@ function setupFirebaseListeners() {
     });
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 同步到 Firebase
 function syncToFirebase() {
     if (!database || !isFirebaseEnabled) return;
@@ -971,70 +349,6 @@ function syncToFirebase() {
         });
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 更新同步狀態
 function updateSyncStatus(status, text) {
     syncStatus = status;
@@ -1066,70 +380,6 @@ function updateSyncStatus(status, text) {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 切換用戶模式
 function switchUser(user) {
     currentUser = user;
@@ -1147,70 +397,6 @@ function switchUser(user) {
     renderCalendar();
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 切換視圖模式
 function switchView(view) {
     currentView = view;
@@ -1228,70 +414,6 @@ function switchView(view) {
     renderCalendar();
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 渲染日曆
 function renderCalendar() {
     if (currentView === 'month') {
@@ -1301,70 +423,6 @@ function renderCalendar() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 渲染月視圖
 function renderMonthView() {
     const year = currentDate.getFullYear();
@@ -1392,70 +450,6 @@ function renderMonthView() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 渲染週視圖
 function renderWeekView() {
     const startOfWeek = getStartOfWeek(currentDate);
@@ -1492,70 +486,6 @@ function renderWeekView() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 獲取週的開始日期（星期日）
 function getStartOfWeek(date) {
     const startOfWeek = new Date(date);
@@ -1565,70 +495,6 @@ function getStartOfWeek(date) {
     return startOfWeek;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 創建日期元素
 function createDayElement(date, currentMonth) {
     const dayElement = document.createElement('div');
@@ -1698,70 +564,6 @@ function createDayElement(date, currentMonth) {
     return dayElement;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 創建日期中的事件容器
 function createDayEventsContainer(date) {
     const container = document.createElement('div');
@@ -1824,70 +626,6 @@ function createDayEventsContainer(date) {
     return container;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 創建日期中的單個事件項目
 function createDayEventItem(event, currentDate = null) {
     const item = document.createElement('div');
@@ -1974,70 +712,6 @@ function createDayEventItem(event, currentDate = null) {
     return item;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 顯示事件詳情（只讀）
 function showEventDetails(event) {
     const modal = document.getElementById('eventModal');
@@ -2077,70 +751,6 @@ function showEventDetails(event) {
     };
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 獲取特定日期的事件
 function getEventsForDate(date) {
     const dateString = formatDate(date);
@@ -2159,70 +769,6 @@ function getEventsForDate(date) {
     });
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 獲取事件CSS類別
 function getEventClass(event) {
     // 除錯資訊
@@ -2240,70 +786,6 @@ function getEventClass(event) {
     return 'personal-event';
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 顯示某天的事件
 function showDayEvents(date) {
     const dayEvents = getEventsForDate(date);
@@ -2329,70 +811,6 @@ function showDayEvents(date) {
     eventSidebar.classList.add('open');
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 創建事件列表項目
 function createEventListItem(event) {
     const item = document.createElement('div');
@@ -2445,70 +863,6 @@ function createEventListItem(event) {
     return item;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 創建事件操作按鈕
 function createEventActions(event) {
     const actions = document.createElement('div');
@@ -2536,70 +890,6 @@ function createEventActions(event) {
     return actions;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 獲取事件類型文字
 function getEventTypeText(event) {
     const ownerText = event.owner === 'cat' ? '🐱' : '🐭';
@@ -2610,70 +900,6 @@ function getEventTypeText(event) {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 打開事件彈窗
 function openEventModal(event = null) {
     editingEventId = event ? event.id : null;
@@ -2712,209 +938,17 @@ function openEventModal(event = null) {
     eventModal.style.display = 'block';
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 關閉彈窗
 function closeModal() {
     eventModal.style.display = 'none';
     editingEventId = null;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 關閉側邊欄
 function closeSidebar() {
     eventSidebar.classList.remove('open');
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 處理表單提交
 function handleFormSubmit(e) {
     e.preventDefault();
@@ -2971,154 +1005,17 @@ function handleFormSubmit(e) {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 編輯事件
 function editEvent(event) {
     openEventModal(event);
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 刪除事件
 function deleteEvent() {
     if (editingEventId && confirm('確定要刪除這個行程嗎？')) {
         events = events.filter(e => e.id !== editingEventId);
         saveEvents();
         renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
         closeModal();
 
         // 如果側邊欄開啟，更新內容
@@ -3128,70 +1025,6 @@ function deleteEvent() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 接受邀請
 function acceptInvitation(eventId) {
     const eventIndex = events.findIndex(e => e.id === eventId);
@@ -3200,15 +1033,6 @@ function acceptInvitation(eventId) {
         events[eventIndex].type = 'shared';
         saveEvents();
         renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
 
         if (selectedDate) {
             showDayEvents(selectedDate);
@@ -3218,85 +1042,12 @@ function acceptInvitation(eventId) {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 拒絕邀請
 function rejectInvitation(eventId) {
     if (confirm('確定要拒絕這個邀請嗎？')) {
         events = events.filter(e => e.id !== eventId);
         saveEvents();
         renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
 
         if (selectedDate) {
             showDayEvents(selectedDate);
@@ -3306,70 +1057,6 @@ function rejectInvitation(eventId) {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 顯示通知
 function showNotification(message, type = 'info') {
     // 創建通知元素
@@ -3400,70 +1087,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 設定日期方格的拖拽支援
 function setupDragAndDrop(dayElement, date) {
     // 允許放置
@@ -3492,70 +1115,6 @@ function setupDragAndDrop(dayElement, date) {
     });
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 設定事件項目的拖拽處理
 function setupEventDragHandlers(item, event) {
     item.addEventListener('dragstart', (e) => {
@@ -3588,70 +1147,6 @@ function setupEventDragHandlers(item, event) {
     });
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 移動事件到新日期
 function moveEventToDate(eventId, newDate) {
     const eventIndex = events.findIndex(e => e.id === eventId);
@@ -3667,154 +1162,17 @@ function moveEventToDate(eventId, newDate) {
 
         saveEvents();
         renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
 
         // 顯示成功通知
         showNotification(`行程「${events[eventIndex].title}」已移動到新日期`, 'success');
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 // 工具函數
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 function formatDate(date) {
     // 避免時區問題，使用本地日期
     const year = date.getFullYear();
@@ -3823,138 +1181,10 @@ function formatDate(date) {
     return `${year}-${month}-${day}`;
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 function isSameDate(date1, date2) {
     return date1.toDateString() === date2.toDateString();
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 function saveEvents() {
     // 本地備份
     localStorage.setItem('calendarEvents', JSON.stringify(events));
@@ -3965,70 +1195,6 @@ function saveEvents() {
     }
 }
 
-// 滑動處理函數
-function handleTouchStart(e) {
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        calendarWrapper.classList.remove("swipe-left", "swipe-right");
-    }
-    if (currentView !== "week") return;
-    touchStartX = e.touches[0].clientX;
-    isSwipeGesture = false;
-}
-
-function handleTouchMove(e) {
-    if (currentView !== "week") return;
-    const currentX = e.touches[0].clientX;
-    const deltaX = currentX - touchStartX;
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    
-    if (Math.abs(deltaX) > 10) {
-        isSwipeGesture = true;
-        if (calendarWrapper) {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-            if (deltaX > 0) {
-                calendarWrapper.classList.add("swipe-right");
-            } else {
-                calendarWrapper.classList.add("swipe-left");
-            }
-        }
-    }
-    if (currentView !== "week") return;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > 10) {
-        isSwipeGesture = true;
-    }
-}
-
-function handleTouchEnd(e) {
-    if (currentView !== "week" || !isSwipeGesture) return;
-    
-    touchEndX = e.changedTouches[0].clientX;
-    const swipeDistance = touchEndX - touchStartX;
-    const minSwipeDistance = 50;
-    
-    if (Math.abs(swipeDistance) > minSwipeDistance) {
-        if (swipeDistance > 0) {
-            // 向右滑動 - 上一週
-            currentDate.setDate(currentDate.getDate() - 7);
-        } else {
-            // 向左滑動 - 下一週
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-        renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
-}
 
 
 // 添加動畫CSS
@@ -4079,15 +1245,6 @@ document.addEventListener('keydown', function(e) {
         }
         renderCalendar();
     }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
-    }
 
     if (e.key === 'ArrowRight' && !e.target.matches('input, textarea')) {
         if (currentView === 'month') {
@@ -4096,15 +1253,6 @@ document.addEventListener('keydown', function(e) {
             currentDate.setDate(currentDate.getDate() + 7);
         }
         renderCalendar();
-    }
-    
-    // 清除視覺反饋
-    const calendarWrapper = document.querySelector(".calendar-wrapper.week-view");
-    if (calendarWrapper) {
-        setTimeout(() => {
-            calendarWrapper.classList.remove("swipe-left", "swipe-right");
-        }, 200);
-    }
     }
 
     // M 鍵切換到月視圖，W 鍵切換到週視圖

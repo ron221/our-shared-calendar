@@ -288,29 +288,7 @@ body {
     }
 
     .calendar-wrapper.week-view .calendar-grid {
-    /* 滑動提示樣式 */
-    .calendar-wrapper.week-view::before {
-        content: "← 滑動切換週 →";
-        display: block;
-        text-align: center;
-        font-size: 0.8em;
-        color: var(--text-secondary);
-        margin-bottom: 10px;
-        opacity: 0.7;
-    }
-
-    /* 滑動動畫效果 */
-    .calendar-wrapper.week-view {
-        transition: transform 0.3s ease;
-    }
-
-    .calendar-wrapper.week-view.swipe-left {
-        transform: translateX(-10px);
-    }
-
-    .calendar-wrapper.week-view.swipe-right {
-        transform: translateX(10px);
-    }        display: flex;
+        display: flex;
         flex-direction: column;
         gap: 8px;
     }
