@@ -987,6 +987,9 @@ function showDayEvents(date) {
 
 // 創建事件列表項目
 function createEventListItem(event) {
+    const container = document.createElement('div');
+    container.className = 'event-item-container';
+
     const item = document.createElement('div');
     item.className = 'event-item';
 
@@ -1032,6 +1035,28 @@ function createEventListItem(event) {
         item.appendChild(actions);
     }
 
+    // 創建刪除按鈕 (只有當用戶有權限刪除時才顯示)
+    const canDelete = !event.isFromGoogleCalendar && (event.owner === currentUser || event.type === 'shared');
+    let deleteBtn = null;
+
+    if (canDelete) {
+        deleteBtn = document.createElement('div');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showDeleteConfirmation(event);
+        });
+        container.appendChild(deleteBtn);
+    }
+
+    container.appendChild(item);
+
+    // 添加左滑功能
+    if (canDelete && deleteBtn) {
+        addSwipeToDeleteGesture(container, item, deleteBtn);
+    }
+
     // 點擊編輯事件
     item.addEventListener('click', () => {
         if (event.isFromGoogleCalendar) {
@@ -1042,7 +1067,7 @@ function createEventListItem(event) {
         }
     });
 
-    return item;
+    return container;
 }
 
 // 創建事件操作按鈕
@@ -1088,6 +1113,159 @@ function getEventTypeText(event) {
         case 'invitation': return `📩 ${ownerText} 的邀請`;
         default: return `${ownerText} 個人行程`;
     }
+}
+
+// 添加左滑刪除手勢
+function addSwipeToDeleteGesture(container, item, deleteBtn) {
+    let startX = 0;
+    let currentX = 0;
+    let isSwipeActive = false;
+    let swipeThreshold = 80; // 左滑多少像素顯示刪除按鈕
+
+    function handleTouchStart(e) {
+        startX = e.touches[0].clientX;
+        isSwipeActive = false;
+        item.style.transition = 'none';
+    }
+
+    function handleTouchMove(e) {
+        if (!startX) return;
+
+        currentX = e.touches[0].clientX;
+        const diffX = startX - currentX;
+
+        // 只處理左滑
+        if (diffX > 0) {
+            isSwipeActive = true;
+            const translateX = Math.min(diffX, swipeThreshold);
+            item.style.transform = `translateX(-${translateX}px)`;
+
+            // 當滑動距離超過閾值時，顯示刪除按鈕
+            if (diffX >= swipeThreshold) {
+                deleteBtn.style.opacity = '1';
+                deleteBtn.style.transform = 'translateX(0)';
+            } else {
+                const opacity = diffX / swipeThreshold;
+                deleteBtn.style.opacity = opacity;
+                deleteBtn.style.transform = `translateX(${swipeThreshold - diffX}px)`;
+            }
+        }
+    }
+
+    function handleTouchEnd(e) {
+        if (!isSwipeActive) {
+            startX = 0;
+            return;
+        }
+
+        item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+
+        const diffX = startX - currentX;
+
+        if (diffX >= swipeThreshold) {
+            // 保持顯示刪除按鈕
+            item.style.transform = `translateX(-${swipeThreshold}px)`;
+            deleteBtn.style.opacity = '1';
+            deleteBtn.style.transform = 'translateX(0)';
+            container.classList.add('swipe-active');
+        } else {
+            // 回彈到原位
+            resetSwipeState();
+        }
+
+        startX = 0;
+        isSwipeActive = false;
+    }
+
+    function resetSwipeState() {
+        item.style.transform = 'translateX(0)';
+        deleteBtn.style.opacity = '0';
+        deleteBtn.style.transform = `translateX(${swipeThreshold}px)`;
+        container.classList.remove('swipe-active');
+    }
+
+    // 點擊其他地方時重置狀態
+    function handleDocumentClick(e) {
+        if (!container.contains(e.target)) {
+            resetSwipeState();
+        }
+    }
+
+    item.addEventListener('touchstart', handleTouchStart, { passive: true });
+    item.addEventListener('touchmove', handleTouchMove, { passive: false });
+    item.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    // 監聽文檔點擊事件來重置狀態
+    document.addEventListener('click', handleDocumentClick);
+
+    // 清理函數
+    container.addEventListener('remove', () => {
+        document.removeEventListener('click', handleDocumentClick);
+    });
+}
+
+// 顯示刪除確認彈窗
+function showDeleteConfirmation(event) {
+    const modal = document.createElement('div');
+    modal.className = 'delete-confirmation-modal';
+    modal.innerHTML = `
+        <div class="delete-confirmation-content">
+            <div class="delete-confirmation-header">
+                <h3>確認刪除</h3>
+            </div>
+            <div class="delete-confirmation-body">
+                <p>確定要刪除這個行程嗎？</p>
+                <div class="event-preview">
+                    <div class="event-preview-title">${event.title}</div>
+                    <div class="event-preview-time">${event.time || '全天'}</div>
+                    ${event.description ? `<div class="event-preview-desc">${event.description}</div>` : ''}
+                </div>
+                <p class="delete-warning">此操作無法復原。</p>
+            </div>
+            <div class="delete-confirmation-actions">
+                <button class="btn btn-secondary cancel-delete">取消</button>
+                <button class="btn btn-danger confirm-delete">確認刪除</button>
+            </div>
+        </div>
+    `;
+
+    // 添加事件監聽器
+    const cancelBtn = modal.querySelector('.cancel-delete');
+    const confirmBtn = modal.querySelector('.confirm-delete');
+
+    cancelBtn.addEventListener('click', () => {
+        modal.remove();
+    });
+
+    confirmBtn.addEventListener('click', () => {
+        deleteEventById(event.id);
+        modal.remove();
+        // 如果側邊欄是開啟的，重新載入該日期的行程
+        if (sidebarDate) {
+            showDayEvents(sidebarDate);
+        }
+    });
+
+    // 點擊背景關閉
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+
+    // ESC 鍵關閉
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    document.body.appendChild(modal);
+
+    // 聚焦到取消按鈕
+    setTimeout(() => cancelBtn.focus(), 100);
 }
 
 // 打開事件彈窗
@@ -1269,16 +1447,23 @@ function editEvent(event) {
 // 刪除事件
 function deleteEvent() {
     if (editingEventId && confirm('確定要刪除這個行程嗎？')) {
-        events = events.filter(e => e.id !== editingEventId);
-        saveEvents();
-        renderCalendar();
+        deleteEventById(editingEventId);
         closeModal();
-
-        // 如果側邊欄開啟，更新內容
-        if (eventSidebar.classList.contains('open') && selectedDate) {
-            showDayEvents(selectedDate);
-        }
     }
+}
+
+// 根據ID刪除事件
+function deleteEventById(eventId) {
+    events = events.filter(e => e.id !== eventId);
+    saveEvents();
+    renderCalendar();
+
+    // 如果側邊欄開啟，更新內容
+    if (eventSidebar.classList.contains('open') && selectedDate) {
+        showDayEvents(selectedDate);
+    }
+
+    showNotification('行程已刪除', 'success');
 }
 
 // 接受邀請

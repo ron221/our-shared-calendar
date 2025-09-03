@@ -534,9 +534,24 @@ body {
 }
 
 .calendar-day.today {
-    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-weight: bold;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.calendar-day.today::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.6) 50%, #ffffff 100%);
+    opacity: 0.8;
 }
 
 /* 國定假日樣式 */
@@ -546,8 +561,9 @@ body {
 }
 
 .calendar-day.holiday.today {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ff6b9d 100%);
-    border: 2px solid #ffffff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 }
 
 .holiday-name {
@@ -638,6 +654,20 @@ body {
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
     color: var(--text-primary);
     border: 1px solid var(--border-color);
+}
+
+/* 當日事件項目的特殊樣式 */
+.calendar-day.today .day-event-item {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(5px);
+}
+
+.calendar-day.today .day-event-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .day-event-item:hover {
@@ -1235,6 +1265,26 @@ body {
 
     .calendar-day.today .day-number {
         font-size: 0.8em;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        position: relative;
+        animation: none; /* 在手機上關閉動畫以節省效能 */
+    }
+
+    .calendar-day.today .day-number::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 15px; /* 手機上縮小裝飾線 */
+        height: 1px; /* 手機上縮小高度 */
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 1px;
+        animation: none; /* 手機上關閉動畫 */
+    }
+
+    .calendar-day.today::before {
+        height: 1px; /* 手機上縮小頂部裝飾線 */
     }
 
     .day-number {
@@ -1622,4 +1672,242 @@ body {
 
 .action-btn:hover {
     transform: scale(1.05);
+}
+
+/* 當日動畫效果 */
+@keyframes todayPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes todayGlow {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* 左滑刪除功能樣式 */
+.event-item-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.event-item-container .event-item {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 0;
+    transition: transform 0.3s ease;
+}
+
+.delete-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background: linear-gradient(135deg, #ff4757, #ff3742);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(80px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #ff3742, #ff2731);
+}
+
+.delete-btn i {
+    font-size: 18px;
+}
+
+/* 當滑動激活時 */
+.event-item-container.swipe-active .delete-btn {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* 刪除確認彈窗樣式 */
+.delete-confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+.delete-confirmation-content {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 0;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px var(--shadow-hover);
+    animation: slideUp 0.3s ease;
+}
+
+.delete-confirmation-header {
+    padding: 20px 25px 0;
+    text-align: center;
+}
+
+.delete-confirmation-header h3 {
+    color: var(--text-primary);
+    font-size: 1.3em;
+    margin: 0;
+}
+
+.delete-confirmation-body {
+    padding: 20px 25px;
+    text-align: center;
+}
+
+.delete-confirmation-body p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-size: 1em;
+}
+
+.event-preview {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+    text-align: left;
+    border-left: 4px solid #667eea;
+}
+
+.event-preview-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.event-preview-time {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+
+.event-preview-desc {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.delete-warning {
+    color: #ff4757 !important;
+    font-size: 0.9em !important;
+    font-weight: 500;
+    margin-top: 15px !important;
+}
+
+.delete-confirmation-actions {
+    padding: 0 25px 25px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.delete-confirmation-actions .btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-confirmation-actions .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.delete-confirmation-actions .btn-secondary:hover {
+    background: var(--text-light);
+    color: var(--text-primary);
+}
+
+.delete-confirmation-actions .btn-danger {
+    background: linear-gradient(135deg, #ff4757, #ff3742);
+    color: white;
+}
+
+.delete-confirmation-actions .btn-danger:hover {
+    background: linear-gradient(135deg, #ff3742, #ff2731);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 深色模式下的刪除確認彈窗 */
+[data-theme="dark"] .delete-confirmation-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .event-preview {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+}
+
+/* 手機版優化 */
+@media (max-width: 768px) {
+    .delete-confirmation-content {
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+
+    .delete-confirmation-actions {
+        flex-direction: column;
+    }
+
+    .delete-confirmation-actions .btn {
+        flex: none;
+    }
+
+    .delete-btn {
+        width: 70px;
+        font-size: 1em;
+    }
+
+    .delete-btn i {
+        font-size: 16px;
+    }
 }
