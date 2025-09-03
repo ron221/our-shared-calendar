@@ -122,6 +122,84 @@ body {
     color: #fff;
 }
 
+/* Google Calendar 連動區域 */
+.google-calendar-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.google-calendar-status {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.google-calendar-status.connected {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.google-calendar-status.syncing {
+    color: #ffc107;
+    font-weight: 600;
+}
+
+.google-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    background: #4285f4;
+    color: white;
+    box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+}
+
+.google-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+}
+
+.google-btn.sync-btn {
+    background: #34a853;
+    box-shadow: 0 2px 8px rgba(52, 168, 83, 0.3);
+}
+
+.google-btn.sync-btn:hover {
+    box-shadow: 0 4px 12px rgba(52, 168, 83, 0.4);
+}
+
+.google-btn.disconnect-btn {
+    background: #ea4335;
+    box-shadow: 0 2px 8px rgba(234, 67, 53, 0.3);
+}
+
+.google-btn.disconnect-btn:hover {
+    box-shadow: 0 4px 12px rgba(234, 67, 53, 0.4);
+}
+
+.google-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.google-btn i {
+    font-size: 1em;
+}
+
 /* 深色模式切換按鈕 */
 .theme-toggle {
     position: absolute;
@@ -632,6 +710,22 @@ body {
     transform: translateY(-50%);
 }
 
+/* Google Calendar 事件樣式 */
+.day-event-item.google-event {
+    border-left-color: #4285f4;
+    background: linear-gradient(45deg, rgba(66, 133, 244, 0.1), rgba(52, 168, 83, 0.1));
+    position: relative;
+}
+
+.day-event-item.google-event::after {
+    content: '📅';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.7em;
+    opacity: 0.8;
+}
+
 .event-time {
     font-weight: 600;
     color: #666;
@@ -779,6 +873,10 @@ body {
 .holiday {
     background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
     border: 1px solid #ff6b9d;
+}
+
+.google-event {
+    background: linear-gradient(45deg, #4285f4, #34a853);
 }
 
 /* 彈窗樣式 */
@@ -1066,6 +1164,23 @@ body {
     .user-btn {
         padding: 8px 16px;
         font-size: 0.9em;
+    }
+
+    .google-calendar-section {
+        margin-top: 15px;
+        padding: 12px;
+    }
+
+    .google-calendar-status {
+        font-size: 0.8em;
+        margin-bottom: 8px;
+    }
+
+    .google-btn {
+        padding: 6px 12px;
+        font-size: 0.8em;
+        margin: 0 3px;
+        gap: 4px;
     }
 
     .calendar-controls {

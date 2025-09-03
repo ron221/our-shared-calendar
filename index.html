@@ -14,6 +14,12 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- Google API JavaScript Client -->
+    <script src="https://apis.google.com/js/api.js"></script>
+
+    <!-- Google Calendar 配置 -->
+    <script src="google-config.js"></script>
 </head>
 <body>
     <div class="container">
@@ -29,6 +35,22 @@
                 </button>
                 <button id="mouseMode" class="user-btn" data-user="mouse">
                     我是 🐭
+                </button>
+            </div>
+
+            <!-- Google Calendar 連動區域 -->
+            <div class="google-calendar-section">
+                <div class="google-calendar-status" id="googleCalendarStatus">
+                    <span id="googleStatusText">未連接 Google Calendar</span>
+                </div>
+                <button id="connectGoogleCalendar" class="google-btn">
+                    <i class="fab fa-google"></i> 連接 Google Calendar
+                </button>
+                <button id="syncGoogleCalendar" class="google-btn sync-btn" style="display: none;">
+                    <i class="fas fa-sync-alt"></i> 同步行程
+                </button>
+                <button id="disconnectGoogleCalendar" class="google-btn disconnect-btn" style="display: none;">
+                    <i class="fas fa-unlink"></i> 中斷連接
                 </button>
             </div>
 
@@ -92,6 +114,10 @@
             <div class="legend-item">
                 <span class="legend-color holiday"></span>
                 <span>國定假日</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color google-event"></span>
+                <span>Google Calendar</span>
             </div>
         </div>
 
