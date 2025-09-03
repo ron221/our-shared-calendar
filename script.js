@@ -19,6 +19,7 @@ let currentView = 'month'; // 預設為月視圖
 let events = [];
 let selectedDate = null;
 let editingEventId = null;
+let sidebarDate = null; // 記住側邊欄當前顯示的日期
 let taiwanHolidays = {};
 let isDarkMode = false;
 
@@ -189,8 +190,10 @@ function setupEventListeners() {
 
     // 手機版新增按鈕
     document.getElementById('mobileAddBtn').addEventListener('click', () => {
-        // 設定今天為選中的日期，然後開啟新增模式
-        selectedDate = new Date();
+        // 如果沒有選中日期，預設為今天
+        if (!selectedDate) {
+            selectedDate = new Date();
+        }
         openEventModal();
     });
 
@@ -199,6 +202,7 @@ function setupEventListeners() {
 
     // 側邊欄控制
     document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+    document.getElementById('addEventToDate').addEventListener('click', addEventToSelectedDate);
 
     // 設置觸控滑動手勢
     setupSwipeGestures();
@@ -806,6 +810,10 @@ function getEventClass(event) {
 
 // 顯示某天的事件
 function showDayEvents(date) {
+    // 更新選中的日期和側邊欄日期為當前查看的日期
+    selectedDate = new Date(date);
+    sidebarDate = new Date(date);
+
     const dayEvents = getEventsForDate(date);
     const eventList = document.getElementById('eventList');
 
@@ -827,6 +835,13 @@ function showDayEvents(date) {
 
     // 顯示側邊欄
     eventSidebar.classList.add('open');
+
+    console.log('📅 顯示日期詳情:', {
+        viewDate: date.toDateString(),
+        selectedDate: selectedDate.toDateString(),
+        sidebarDate: sidebarDate.toDateString(),
+        eventsCount: dayEvents.length
+    });
 }
 
 // 創建事件列表項目
@@ -976,6 +991,27 @@ function closeModal() {
 // 關閉側邊欄
 function closeSidebar() {
     eventSidebar.classList.remove('open');
+    // 清除側邊欄日期記錄
+    sidebarDate = null;
+}
+
+// 新增行程到選中的日期
+function addEventToSelectedDate() {
+    // 使用側邊欄當前顯示的日期，如果沒有則使用選中日期，最後回退到今天
+    const targetDate = sidebarDate || selectedDate || new Date();
+    selectedDate = new Date(targetDate);
+
+    console.log('➕ 新增行程到指定日期:', {
+        targetDate: targetDate.toDateString(),
+        selectedDate: selectedDate.toDateString(),
+        formattedDate: formatDate(selectedDate)
+    });
+
+    // 關閉側邊欄
+    closeSidebar();
+
+    // 打開新增行程彈窗
+    openEventModal();
 }
 
 // 處理表單提交
@@ -1030,7 +1066,9 @@ function handleFormSubmit(e) {
 
     // 如果側邊欄開啟，更新內容
     if (eventSidebar.classList.contains('open')) {
-        showDayEvents(new Date(eventData.date));
+        // 使用側邊欄記住的日期，或者使用事件的日期
+        const dateToShow = sidebarDate || new Date(eventData.date);
+        showDayEvents(dateToShow);
     }
 }
 

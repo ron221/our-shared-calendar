@@ -962,12 +962,45 @@ body {
     color: white;
 }
 
+.sidebar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.add-event-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-event-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+}
+
 .close-sidebar {
     background: none;
     border: none;
     color: white;
     font-size: 24px;
     cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.close-sidebar:hover {
+    transform: scale(1.1);
 }
 
 .event-list {
@@ -1212,6 +1245,12 @@ body {
         font-size: 1.1em;
     }
 
+    .add-event-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
     .event-list {
         padding: 15px;
     }
@@ -1355,6 +1394,25 @@ body {
     .btn {
         padding: 10px 16px;
         font-size: 0.85em;
+    }
+
+    /* 小螢幕側邊欄按鈕優化 */
+    .sidebar-header {
+        padding: 12px 15px;
+    }
+
+    .sidebar-header h3 {
+        font-size: 1em;
+    }
+
+    .add-event-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    .close-sidebar {
+        font-size: 20px;
     }
 }
 
