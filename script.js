@@ -125,6 +125,7 @@ let isGoogleCalendarEnabled = false;
 let googleCalendarAuth = null;
 let googleCalendarStatus = 'disconnected';
 let lastGoogleCalendarSync = null;
+let isGoogleApiReady = false;
 
 // Google Calendar API 配置將從 google-config.js 載入
 
@@ -1482,13 +1483,21 @@ function initializeGoogleCalendar() {
         return;
     }
 
+    // 先禁用連接按鈕，等待初始化完成
+    const connectBtn = document.getElementById('connectGoogleCalendar');
+    if (connectBtn) {
+        connectBtn.disabled = true;
+        connectBtn.textContent = '初始化中...';
+    }
+
+    updateGoogleCalendarStatus('connecting', '正在初始化...');
+
     // 檢查是否有保存的授權狀態
     const savedAuth = localStorage.getItem('googleCalendarAuth');
     if (savedAuth) {
         try {
             googleCalendarAuth = JSON.parse(savedAuth);
-            updateGoogleCalendarStatus('connected', `已連接：${googleCalendarAuth.email || '用戶'}`);
-            showGoogleCalendarButtons(true);
+            // 但不立即顯示為已連接，等 API 初始化完成再檢查
         } catch (error) {
             console.warn('⚠️ Google Calendar 授權資料損壞，清除快取');
             localStorage.removeItem('googleCalendarAuth');
@@ -1497,10 +1506,25 @@ function initializeGoogleCalendar() {
 
     // 載入 Google API 客戶端庫
     if (typeof gapi !== 'undefined') {
-        gapi.load('client:auth2', initGoogleApiClient);
+        console.log('🔧 載入 Google API 客戶端庫...');
+
+        // 設置初始化超時檢查
+        const initTimeout = setTimeout(() => {
+            if (!isGoogleApiReady) {
+                console.error('⏰ Google API 初始化超時');
+                updateGoogleCalendarStatus('error', '初始化超時，請檢查網路連線');
+                enableGoogleCalendarButton(false);
+            }
+        }, 10000); // 10秒超時
+
+        gapi.load('client:auth2', () => {
+            clearTimeout(initTimeout);
+            initGoogleApiClient();
+        });
     } else {
         console.warn('⚠️ Google API 客戶端庫未載入');
         updateGoogleCalendarStatus('error', 'Google API 載入失敗');
+        enableGoogleCalendarButton(false);
     }
 }
 
@@ -1508,6 +1532,11 @@ function initializeGoogleCalendar() {
 async function initGoogleApiClient() {
     try {
         const config = window.GOOGLE_CALENDAR_CONFIG;
+        console.log('🔧 開始初始化 Google API 客戶端...', {
+            apiKey: config.apiKey ? `${config.apiKey.substring(0, 10)}...` : '未設定',
+            clientId: config.clientId ? `${config.clientId.substring(0, 20)}...` : '未設定'
+        });
+
         await gapi.client.init({
             apiKey: config.apiKey,
             clientId: config.clientId,
@@ -1516,10 +1545,11 @@ async function initGoogleApiClient() {
         });
 
         console.log('🔗 Google Calendar API 客戶端初始化成功');
+        isGoogleApiReady = true;
 
         // 檢查是否已經登入
         const authInstance = gapi.auth2.getAuthInstance();
-        if (authInstance.isSignedIn.get()) {
+        if (authInstance && authInstance.isSignedIn.get()) {
             const user = authInstance.currentUser.get();
             const profile = user.getBasicProfile();
 
@@ -1532,10 +1562,38 @@ async function initGoogleApiClient() {
             updateGoogleCalendarStatus('connected', `已連接：${profile.getEmail()}`);
             showGoogleCalendarButtons(true);
             isGoogleCalendarEnabled = true;
+        } else {
+            // 沒有登入，顯示未連接狀態並啟用連接按鈕
+            updateGoogleCalendarStatus('disconnected', '未連接 Google Calendar');
+            enableGoogleCalendarButton(true);
         }
     } catch (error) {
         console.error('❌ Google Calendar API 初始化失敗:', error);
-        updateGoogleCalendarStatus('error', '初始化失敗');
+        console.error('詳細錯誤:', {
+            message: error.message,
+            details: error.details,
+            result: error.result
+        });
+
+        // 更具體的錯誤訊息
+        let errorMessage = '初始化失敗';
+        if (error.message) {
+            if (error.message.includes('API key not valid')) {
+                errorMessage = 'API 金鑰無效';
+            } else if (error.message.includes('The OAuth client was not found')) {
+                errorMessage = 'OAuth 客戶端未找到';
+            } else if (error.message.includes('unauthorized_client')) {
+                errorMessage = '客戶端未授權';
+            } else if (error.message.includes('The request is missing a valid API key')) {
+                errorMessage = '缺少有效的 API 金鑰';
+            } else {
+                errorMessage = `初始化失敗: ${error.message}`;
+            }
+        }
+
+        updateGoogleCalendarStatus('error', errorMessage);
+        isGoogleApiReady = false;
+        enableGoogleCalendarButton(false);
     }
 }
 
@@ -1568,7 +1626,16 @@ async function connectGoogleCalendar() {
             return;
         }
 
+        // 檢查 Google API 是否已準備就緒
+        if (!isGoogleApiReady) {
+            throw new Error('Google API 尚未初始化完成，請稍後再試');
+        }
+
         const authInstance = gapi.auth2.getAuthInstance();
+        if (!authInstance) {
+            throw new Error('Google Auth 實例未找到，請重新載入頁面');
+        }
+
         const user = await authInstance.signIn();
         const profile = user.getBasicProfile();
 
@@ -1595,7 +1662,18 @@ async function connectGoogleCalendar() {
     } catch (error) {
         console.error('❌ Google Calendar 連接失敗:', error);
         updateGoogleCalendarStatus('error', '連接失敗');
-        showNotification('Google Calendar 連接失敗', 'error');
+
+        // 更詳細的錯誤訊息
+        let errorMessage = 'Google Calendar 連接失敗';
+        if (error.message.includes('尚未初始化')) {
+            errorMessage = '正在初始化中，請稍後再試';
+        } else if (error.message.includes('popup_blocked')) {
+            errorMessage = '彈窗被封鎖，請允許彈窗後重試';
+        } else if (error.message.includes('access_denied')) {
+            errorMessage = '用戶拒絕授權';
+        }
+
+        showNotification(errorMessage, 'error');
     }
 }
 
@@ -1603,8 +1681,15 @@ async function connectGoogleCalendar() {
 function disconnectGoogleCalendar() {
     if (confirm('確定要中斷與 Google Calendar 的連接嗎？')) {
         try {
-            const authInstance = gapi.auth2.getAuthInstance();
-            authInstance.signOut();
+            // 移除之前同步的 Google Calendar 事件
+            events = events.filter(event => !event.isFromGoogleCalendar);
+
+            if (!window.GOOGLE_CALENDAR_DEMO_MODE) {
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (authInstance) {
+                    authInstance.signOut();
+                }
+            }
 
             // 清除本地資料
             googleCalendarAuth = null;
@@ -1614,6 +1699,10 @@ function disconnectGoogleCalendar() {
 
             updateGoogleCalendarStatus('disconnected', '未連接 Google Calendar');
             showGoogleCalendarButtons(false);
+
+            // 重新渲染日曆以移除 Google 行程
+            saveEvents();
+            renderCalendar();
 
             showNotification('已中斷 Google Calendar 連接', 'info');
         } catch (error) {
@@ -1779,5 +1868,18 @@ function showGoogleCalendarButtons(isConnected) {
         connectBtn.style.display = 'inline-flex';
         syncBtn.style.display = 'none';
         disconnectBtn.style.display = 'none';
+    }
+}
+
+// 啟用/禁用 Google Calendar 連接按鈕
+function enableGoogleCalendarButton(enabled) {
+    const connectBtn = document.getElementById('connectGoogleCalendar');
+    if (connectBtn) {
+        connectBtn.disabled = !enabled;
+        if (enabled) {
+            connectBtn.innerHTML = '<i class="fab fa-google"></i> 連接 Google Calendar';
+        } else {
+            connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 初始化中...';
+        }
     }
 }
