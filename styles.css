@@ -1416,6 +1416,11 @@ body {
         font-size: 16px;
     }
 
+    /* 在手機版隱藏側邊欄的新增按鈕，因為下方已經有新增按鈕 */
+    .add-event-btn {
+        display: none;
+    }
+
     .event-list {
         padding: 15px;
     }
@@ -1570,10 +1575,9 @@ body {
         font-size: 1em;
     }
 
+    /* 在手機版隱藏側邊欄的新增按鈕，因為下方已經有新增按鈕 */
     .add-event-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
+        display: none;
     }
 
     .close-sidebar {
