@@ -13,15 +13,30 @@ const firebaseConfig = {
 };
 
 // 全域變數
-let currentDate = new Date();
 let currentUser = 'cat'; // 預設為貓咪模式
-let currentView = 'month'; // 預設為月視圖
-let events = [];
+let currentDate = new Date();
+let currentView = 'month'; // 'month' 或 'week'
 let selectedDate = null;
-let editingEventId = null;
-let sidebarDate = null; // 記住側邊欄當前顯示的日期
-let taiwanHolidays = {};
+let events = []; // 儲存所有事件
+let googleEvents = []; // 儲存從 Google Calendar 獲取的事件
+let isGoogleCalendarConnected = false;
 let isDarkMode = false;
+
+// 拖拽相關變數
+let isDragging = false;
+let draggedEvent = null;
+let dragStartElement = null;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+let isSwiping = false;
+
+// 側邊欄相關變數
+let sidebarDate = null; // 記住側邊欄當前顯示的日期
+let sidebarTouchStartX = 0;
+let sidebarTouchStartY = 0;
+let sidebarIsSwiping = false;
 
 // 台灣國定假日資料
 function initializeTaiwanHolidays() {
@@ -104,16 +119,7 @@ function initializeDarkMode() {
 }
 
 // 拖拽相關變數
-let draggedEvent = null;
 let draggedElement = null;
-let isDragging = false;
-
-// 觸控滑動相關變數
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-let isSwiping = false;
 
 // Firebase 相關變數
 let database = null;
@@ -216,9 +222,13 @@ function setupEventListeners() {
     // 深色模式切換按鈕
     document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
 
-    // 側邊欄控制
+        // 側邊欄控制
     document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+    document.getElementById('backToCalendar').addEventListener('click', closeSidebar);
     document.getElementById('addEventToDate').addEventListener('click', addEventToSelectedDate);
+
+    // 設置側邊欄滑動手勢
+    setupSidebarSwipeGestures();
 
     // 設置觸控滑動手勢
     setupSwipeGestures();
@@ -1923,6 +1933,86 @@ function showSwipeFeedback(direction) {
     setTimeout(() => {
         calendarWrapper.classList.remove(`swipe-${direction}`);
     }, 300);
+}
+
+// 設置側邊欄滑動手勢
+function setupSidebarSwipeGestures() {
+    const eventSidebar = document.getElementById('eventSidebar');
+
+    if (!eventSidebar) return;
+
+    // 觸控開始
+    eventSidebar.addEventListener('touchstart', handleSidebarTouchStart, { passive: true });
+
+    // 觸控移動
+    eventSidebar.addEventListener('touchmove', handleSidebarTouchMove, { passive: false });
+
+    // 觸控結束
+    eventSidebar.addEventListener('touchend', handleSidebarTouchEnd, { passive: true });
+}
+
+// 處理側邊欄觸控開始
+function handleSidebarTouchStart(e) {
+    // 只在側邊欄打開時處理滑動
+    if (!eventSidebar.classList.contains('open')) return;
+
+    const firstTouch = e.touches[0];
+    sidebarTouchStartX = firstTouch.clientX;
+    sidebarTouchStartY = firstTouch.clientY;
+    sidebarIsSwiping = false;
+
+    console.log('📱 側邊欄觸控開始:', { x: sidebarTouchStartX, y: sidebarTouchStartY });
+}
+
+// 處理側邊欄觸控移動
+function handleSidebarTouchMove(e) {
+    if (!eventSidebar.classList.contains('open')) return;
+
+    if (!sidebarTouchStartX || !sidebarTouchStartY) {
+        return;
+    }
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - sidebarTouchStartX;
+    const deltaY = touch.clientY - sidebarTouchStartY;
+
+    // 檢查是否為向左滑動（水平移動距離大於垂直移動距離，且向左滑動）
+    if (deltaX < -30 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        sidebarIsSwiping = true;
+        // 防止頁面滾動
+        e.preventDefault();
+
+        // 添加視覺回饋：隨著滑動距離調整側邊欄位置
+        const slideDistance = Math.max(deltaX, -200); // 限制最大滑動距離
+        eventSidebar.style.transform = `translateX(${slideDistance}px)`;
+        eventSidebar.style.transition = 'none'; // 移除過渡動畫以實現跟手效果
+    }
+}
+
+// 處理側邊欄觸控結束
+function handleSidebarTouchEnd(e) {
+    if (!eventSidebar.classList.contains('open')) return;
+
+    const changedTouch = e.changedTouches[0];
+    const deltaX = changedTouch.clientX - sidebarTouchStartX;
+
+    // 重置樣式
+    eventSidebar.style.transform = '';
+    eventSidebar.style.transition = '';
+
+    // 檢查滑動距離和方向
+    const minSwipeDistance = 80; // 最小滑動距離
+
+    if (sidebarIsSwiping && deltaX < -minSwipeDistance) {
+        // 向左滑動距離足夠 - 關閉側邊欄
+        console.log('👈 側邊欄向左滑動，關閉側邊欄');
+        closeSidebar();
+    }
+
+    // 重置觸控變數
+    sidebarTouchStartX = 0;
+    sidebarTouchStartY = 0;
+    sidebarIsSwiping = false;
 }
 
 // ==================== Google Calendar API 整合 ====================

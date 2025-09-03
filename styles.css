@@ -1090,6 +1090,33 @@ body {
     color: white;
 }
 
+.sidebar-title-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: none; /* 預設隱藏，只在手機版顯示 */
+    align-items: center;
+    justify-content: center;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+}
+
 .sidebar-actions {
     display: flex;
     align-items: center;
@@ -1418,6 +1445,15 @@ body {
 
     /* 在手機版隱藏側邊欄的新增按鈕，因為下方已經有新增按鈕 */
     .add-event-btn {
+        display: none;
+    }
+
+    /* 在手機版顯示返回按鈕，隱藏關閉按鈕 */
+    .back-btn {
+        display: flex !important;
+    }
+
+    .close-sidebar {
         display: none;
     }
 
