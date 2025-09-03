@@ -691,6 +691,9 @@ function createDayEventItem(event, currentDate = null) {
     let ownerIcon = '';
     if (event.isFromGoogleCalendar) {
         ownerIcon = '🔗 '; // Google Calendar 使用連結圖標
+    } else if (event.isSharedFromGoogle) {
+        const originalOwnerIcon = event.originalOwner === 'cat' ? '🐱' : '🐭';
+        ownerIcon = `${originalOwnerIcon}🔗 `; // 分享的 Google Calendar 事件
     } else if (event.type === 'shared') {
         ownerIcon = '🤝 '; // 共同行程使用握手圖標
     } else if (event.status === 'pending') {
@@ -748,7 +751,10 @@ function createDayEventItem(event, currentDate = null) {
     item.addEventListener('click', (e) => {
         if (isDragging) return; // 拖拽時不觸發點擊
         e.stopPropagation();
-        if (event.owner === currentUser || event.type === 'shared') {
+        if (event.isFromGoogleCalendar) {
+            // Google Calendar 事件顯示分享選項
+            showGoogleEventActions(event);
+        } else if (event.owner === currentUser || event.type === 'shared') {
             editEvent(event);
         } else {
             // 如果是別人的事件，顯示詳情
@@ -757,6 +763,99 @@ function createDayEventItem(event, currentDate = null) {
     });
 
     return item;
+}
+
+// 顯示 Google Calendar 事件的操作選項
+function showGoogleEventActions(event) {
+    // 檢查是否已經分享過這個事件
+    const isAlreadyShared = events.some(e =>
+        e.googleEventId === event.googleEventId &&
+        e.isSharedFromGoogle === true &&
+        !e.isFromGoogleCalendar
+    );
+
+    const modal = document.getElementById('eventModal');
+    const form = document.getElementById('eventForm');
+
+    // 設置標題
+    document.getElementById('modalTitle').textContent = 'Google Calendar 行程';
+
+    // 填充表單但設為只讀
+    document.getElementById('eventTitle').value = event.title;
+    document.getElementById('eventDate').value = event.date;
+    document.getElementById('eventEndDate').value = event.endDate || '';
+    document.getElementById('eventTime').value = event.time || '';
+    document.getElementById('eventDescription').value = event.description || '';
+    document.getElementById('eventType').value = event.type;
+
+    // 設置所有輸入為只讀
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.disabled = true;
+    });
+
+    // 隱藏原有的操作按鈕
+    document.getElementById('deleteBtn').style.display = 'none';
+    document.querySelector('.btn-primary').style.display = 'none';
+
+    // 創建 Google 事件專用的操作按鈕區域
+    let googleActionsDiv = document.getElementById('googleEventActions');
+    if (!googleActionsDiv) {
+        googleActionsDiv = document.createElement('div');
+        googleActionsDiv.id = 'googleEventActions';
+        googleActionsDiv.className = 'google-event-actions';
+        googleActionsDiv.style.cssText = `
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        `;
+        form.appendChild(googleActionsDiv);
+    }
+
+    // 清空之前的按鈕
+    googleActionsDiv.innerHTML = '';
+
+    // 分享/取消分享按鈕
+    const shareBtn = document.createElement('button');
+    shareBtn.type = 'button';
+    shareBtn.className = isAlreadyShared ? 'btn btn-warning' : 'btn btn-success';
+    shareBtn.innerHTML = isAlreadyShared ?
+        '<i class="fas fa-user-minus"></i> 取消分享' :
+        '<i class="fas fa-share"></i> 分享給對方';
+    shareBtn.style.cssText = 'flex: 1; min-width: 120px;';
+
+    shareBtn.addEventListener('click', () => {
+        if (isAlreadyShared) {
+            unshareGoogleEvent(event);
+        } else {
+            shareGoogleEvent(event);
+        }
+        closeModal();
+    });
+
+    // 關閉按鈕
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn btn-secondary';
+    closeBtn.innerHTML = '<i class="fas fa-times"></i> 關閉';
+    closeBtn.style.cssText = 'min-width: 80px;';
+    closeBtn.addEventListener('click', closeModal);
+
+    googleActionsDiv.appendChild(shareBtn);
+    googleActionsDiv.appendChild(closeBtn);
+
+    // 防止背景滾動
+    document.body.style.overflow = 'hidden';
+    modal.style.display = 'block';
+
+    // 確保彈窗滾動到頂部
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.scrollTop = 0;
+    }
 }
 
 // 顯示事件詳情（只讀）
@@ -832,10 +931,12 @@ function getEventClass(event) {
         owner: event.owner,
         type: event.type,
         status: event.status,
-        isFromGoogleCalendar: event.isFromGoogleCalendar
+        isFromGoogleCalendar: event.isFromGoogleCalendar,
+        isSharedFromGoogle: event.isSharedFromGoogle
     });
 
     if (event.isFromGoogleCalendar) return 'google-event';
+    if (event.isSharedFromGoogle) return 'shared-event'; // 分享的 Google 事件顯示為共享事件
     if (event.type === 'shared') return 'shared-event';
     if (event.status === 'pending') return 'pending-event';
     if (event.owner === 'cat') return 'cat-event';
@@ -891,6 +992,9 @@ function createEventListItem(event) {
     let ownerIcon = '';
     if (event.isFromGoogleCalendar) {
         ownerIcon = '🔗 '; // Google Calendar 使用連結圖標
+    } else if (event.isSharedFromGoogle) {
+        const originalOwnerIcon = event.originalOwner === 'cat' ? '🐱' : '🐭';
+        ownerIcon = `${originalOwnerIcon}🔗 `; // 分享的 Google Calendar 事件
     } else if (event.type === 'shared') {
         ownerIcon = '🤝 '; // 共同行程使用握手圖標
     } else if (event.status === 'pending') {
@@ -925,7 +1029,10 @@ function createEventListItem(event) {
 
     // 點擊編輯事件
     item.addEventListener('click', () => {
-        if (event.owner === currentUser || event.type === 'shared') {
+        if (event.isFromGoogleCalendar) {
+            // Google Calendar 事件顯示分享選項
+            showGoogleEventActions(event);
+        } else if (event.owner === currentUser || event.type === 'shared') {
             editEvent(event);
         }
     });
@@ -962,6 +1069,14 @@ function createEventActions(event) {
 
 // 獲取事件類型文字
 function getEventTypeText(event) {
+    if (event.isFromGoogleCalendar) {
+        return '🔗 Google Calendar';
+    }
+    if (event.isSharedFromGoogle) {
+        const originalOwnerText = event.originalOwner === 'cat' ? '🐱' : '🐭';
+        return `${originalOwnerText}🔗 分享的 Google Calendar`;
+    }
+
     const ownerText = event.owner === 'cat' ? '🐱' : '🐭';
     switch (event.type) {
         case 'shared': return '🤝 共同行程';
@@ -1020,6 +1135,23 @@ function openEventModal(event = null) {
 function closeModal() {
     eventModal.style.display = 'none';
     editingEventId = null;
+
+    // 清理 Google 事件操作區域
+    const googleActionsDiv = document.getElementById('googleEventActions');
+    if (googleActionsDiv) {
+        googleActionsDiv.remove();
+    }
+
+    // 恢復表單狀態
+    const form = document.getElementById('eventForm');
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.disabled = false;
+    });
+
+    // 恢復原始按鈕
+    document.querySelector('.btn-primary').style.display = 'inline-block';
+    document.getElementById('cancelBtn').textContent = '取消';
 
     // 恢復背景滾動
     document.body.style.overflow = '';
@@ -1143,6 +1275,70 @@ function acceptInvitation(eventId) {
         }
 
         showNotification('已確認參加行程！', 'success');
+    }
+}
+
+// 分享 Google Calendar 事件
+function shareGoogleEvent(googleEvent) {
+    // 創建一個新的共享事件，基於 Google Calendar 事件
+    const sharedEvent = {
+        id: generateId(),
+        title: googleEvent.title,
+        date: googleEvent.date,
+        endDate: googleEvent.endDate,
+        time: googleEvent.time,
+        description: `${googleEvent.description || ''}\n\n📱 從 ${currentUser === 'cat' ? '🐱' : '🐭'} 的 Google Calendar 分享`,
+        type: 'shared',
+        owner: currentUser,
+        status: 'confirmed',
+        isSharedFromGoogle: true,
+        googleEventId: googleEvent.googleEventId,
+        originalOwner: currentUser, // 記錄原始分享者
+        isMultiDay: googleEvent.isMultiDay
+    };
+
+    // 添加到事件列表
+    events.push(sharedEvent);
+    saveEvents();
+    renderCalendar();
+
+    // 顯示成功通知
+    const ownerText = currentUser === 'cat' ? '🐱' : '🐭';
+    showNotification(`已分享 Google Calendar 行程「${googleEvent.title}」給對方`, 'success');
+
+    console.log('📤 分享 Google Calendar 事件:', {
+        originalEvent: googleEvent.title,
+        sharedEventId: sharedEvent.id,
+        owner: currentUser
+    });
+}
+
+// 取消分享 Google Calendar 事件
+function unshareGoogleEvent(googleEvent) {
+    if (confirm('確定要取消分享這個 Google Calendar 行程嗎？')) {
+        // 找到並移除分享的事件
+        const sharedEventIndex = events.findIndex(e =>
+            e.googleEventId === googleEvent.googleEventId &&
+            e.isSharedFromGoogle === true &&
+            !e.isFromGoogleCalendar &&
+            e.originalOwner === currentUser
+        );
+
+        if (sharedEventIndex !== -1) {
+            const sharedEvent = events[sharedEventIndex];
+            events.splice(sharedEventIndex, 1);
+            saveEvents();
+            renderCalendar();
+
+            showNotification(`已取消分享「${googleEvent.title}」`, 'info');
+
+            console.log('📥 取消分享 Google Calendar 事件:', {
+                originalEvent: googleEvent.title,
+                removedEventId: sharedEvent.id
+            });
+        } else {
+            showNotification('找不到要取消的分享事件', 'error');
+        }
     }
 }
 
